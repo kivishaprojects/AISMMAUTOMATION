@@ -158,6 +158,47 @@ export type Database = {
           },
         ]
       }
+      content_notes: {
+        Row: {
+          created_at: string
+          created_by: string
+          details: string | null
+          id: string
+          note_date: string
+          notified: boolean
+          organization_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          details?: string | null
+          id?: string
+          note_date: string
+          notified?: boolean
+          organization_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          details?: string | null
+          id?: string
+          note_date?: string
+          notified?: boolean
+          organization_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inbox_messages: {
         Row: {
           ai_suggested_reply: string | null
@@ -233,6 +274,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "memberships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_integrations: {
+        Row: {
+          api_key: string | null
+          created_at: string
+          id: string
+          mode: string
+          organization_id: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          api_key?: string | null
+          created_at?: string
+          id?: string
+          mode?: string
+          organization_id: string
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string | null
+          created_at?: string
+          id?: string
+          mode?: string
+          organization_id?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_integrations_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"

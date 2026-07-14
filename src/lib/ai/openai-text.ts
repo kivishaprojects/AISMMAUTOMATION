@@ -15,14 +15,16 @@ type CaptionResult = {
 export async function generateCaptionOpenAI({
   imagePrompt,
   brandTone,
+  apiKeyOverride,
 }: {
   imagePrompt: string;
   brandTone?: string | null;
+  apiKeyOverride?: string | null;
 }): Promise<CaptionResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = apiKeyOverride || process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error(
-      "OPENAI_API_KEY is not set. Add it in your environment variables."
+      "OPENAI_API_KEY is not set. Add it in your environment variables, or add your own key under Settings \u2192 My API Keys."
     );
   }
 

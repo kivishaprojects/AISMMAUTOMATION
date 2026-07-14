@@ -7,6 +7,28 @@ import { generateImageOpenAI } from "@/lib/ai/openai-image";
 import { generateCaptionOpenAI } from "@/lib/ai/openai-text";
 import { generateImageSchema, ASPECT_RATIO_TO_SIZE } from "./schema";
 
+/**
+ * Resolves which OpenAI key to use for this org: their own key if they've
+ * set Settings → My API Keys to "My own key", otherwise null (falls back
+ * to the platform-managed OPENAI_API_KEY env var inside the AI helpers).
+ */
+async function resolveOpenAiKey(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  organizationId: string
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("org_integrations")
+    .select("mode, api_key")
+    .eq("organization_id", organizationId)
+    .eq("provider", "openai")
+    .maybeSingle();
+
+  if (data?.mode === "CUSTOM" && data.api_key) {
+    return data.api_key;
+  }
+  return null;
+}
+
 function buildPrompt(basePrompt: string, brandTone?: string | null, colors?: unknown) {
   const parts = [basePrompt];
 
@@ -62,6 +84,7 @@ export async function generateImageAction(
   }
 
   const finalPrompt = buildPrompt(prompt, brandTone, brandColors);
+  const apiKeyOverride = await resolveOpenAiKey(supabase, organizationId);
 
   // Create the job row first (status QUEUED) so there's a durable record
   // even if generation fails partway through — this also gives the UI
@@ -86,7 +109,7 @@ export async function generateImageAction(
 
   try {
     const size = ASPECT_RATIO_TO_SIZE[aspectRatio];
-    const result = await generateImageOpenAI({ prompt: finalPrompt, size });
+    const result = await generateImageOpenAI({ prompt: finalPrompt, size, apiKeyOverride });
 
     const buffer = Buffer.from(result.base64, "base64");
     const storagePath = `${organizationId}/generated/${job.id}.png`;
@@ -183,7 +206,8 @@ export async function generateCaptionAction(
   }
 
   try {
-    const result = await generateCaptionOpenAI({ imagePrompt, brandTone });
+    const apiKeyOverride = await resolveOpenAiKey(supabase, organizationId);
+    const result = await generateCaptionOpenAI({ imagePrompt, brandTone, apiKeyOverride });
     return { success: true, caption: result.caption, hashtags: result.hashtags };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Caption generation failed";

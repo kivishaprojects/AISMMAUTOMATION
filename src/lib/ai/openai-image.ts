@@ -24,11 +24,12 @@ type GenerateImageResult = {
 export async function generateImageOpenAI({
   prompt,
   size = "1024x1024",
-}: GenerateImageParams): Promise<GenerateImageResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  apiKeyOverride,
+}: GenerateImageParams & { apiKeyOverride?: string | null }): Promise<GenerateImageResult> {
+  const apiKey = apiKeyOverride || process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error(
-      "OPENAI_API_KEY is not set. Add it in your environment variables."
+      "OPENAI_API_KEY is not set. Add it in your environment variables, or add your own key under Settings \u2192 My API Keys."
     );
   }
 

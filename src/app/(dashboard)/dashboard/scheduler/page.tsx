@@ -1,6 +1,6 @@
 import { getCurrentUserOrgs } from "@/features/org/queries";
 import { getPosts } from "@/features/scheduler/queries";
-import { SchedulerList } from "@/features/scheduler/SchedulerList";
+import { SchedulerView } from "@/features/scheduler/SchedulerView";
 
 export default async function SchedulerPage() {
   const orgs = await getCurrentUserOrgs();
@@ -17,10 +17,10 @@ export default async function SchedulerPage() {
       <div>
         <h1 className="text-2xl font-semibold text-neutral-900">Scheduler</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Everything published or scheduled from Creative Studio. List view for now — calendar view is next.
+          Everything published or scheduled from Creative Studio.
         </p>
       </div>
-      <SchedulerList posts={posts} />
+      <SchedulerView posts={posts} />
     </div>
   );
 }

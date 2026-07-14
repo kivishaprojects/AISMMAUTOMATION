@@ -8,6 +8,7 @@ import {
 } from "./actions";
 import type { BrandKit } from "@/features/brand-kit/queries";
 import type { GeneratedAsset } from "./queries";
+import type { SocialAccount } from "@/features/scheduler/social-queries";
 
 type Phase = "generate" | "review" | "caption" | "publish" | "done";
 
@@ -18,12 +19,23 @@ const STEPS: { key: Phase; label: string }[] = [
   { key: "publish", label: "Publish" },
 ];
 
+function LoadingOverlay({ message }: { message: string }) {
+  return (
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/90 backdrop-blur-sm">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-900" />
+      <p className="text-sm font-medium text-neutral-700">{message}</p>
+    </div>
+  );
+}
+
 export function StudioWizard({
   organizationId,
   brandKits,
+  socialAccounts,
 }: {
   organizationId: string;
   brandKits: BrandKit[];
+  socialAccounts: SocialAccount[];
 }) {
   const [phase, setPhase] = useState<Phase>("generate");
   const [asset, setAsset] = useState<GeneratedAsset | null>(null);
@@ -75,7 +87,10 @@ export function StudioWizard({
   const meta = (asset?.metadata as { prompt?: string } | null) ?? {};
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+    <div className="relative rounded-2xl border border-neutral-200 bg-white p-6">
+      {genPending && <LoadingOverlay message="Generating your image… (20-30s)" />}
+      {captionPending && <LoadingOverlay message="Writing your caption…" />}
+      {publishPending && <LoadingOverlay message="Saving…" />}
       {/* Stepper header */}
       <div className="mb-6 flex items-center gap-2">
         {STEPS.map((step, i) => {
@@ -166,7 +181,7 @@ export function StudioWizard({
             disabled={genPending}
             className="w-full rounded-lg bg-neutral-900 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-50"
           >
-            {genPending ? "Generating… (this can take 20-30s)" : "Generate image"}
+            Generate image
           </button>
         </form>
       )}
@@ -256,42 +271,52 @@ export function StudioWizard({
         </div>
       )}
 
-      {/* Step 4: Publish or schedule */}
+      {/* Step 4: Select page(s), then publish or schedule */}
       {phase === "publish" && asset && (
-        <form action={publishAction} className="space-y-4">
-          <input type="hidden" name="assetId" value={asset.id} />
-          <input type="hidden" name="caption" value={caption} />
-          <input type="hidden" name="hashtags" value={hashtags} />
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => setPhase("caption")}
+            className="text-xs font-medium text-neutral-500 hover:text-neutral-700"
+          >
+            ← Back
+          </button>
 
-          <p className="text-xs text-neutral-400">
-            Note: this creates the post record and (if scheduled) queues it. Actual
-            posting to connected social accounts happens once you&apos;ve connected
-            them under Settings → Social Media Accounts.
-          </p>
+          {socialAccounts.length === 0 ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <p className="font-medium">No social media accounts connected</p>
+              <p className="mt-1">
+                Connect at least one page under{" "}
+                <a href="/dashboard/settings/social-accounts" className="underline">
+                  Settings → Social Media Accounts
+                </a>{" "}
+                before publishing or scheduling — there&apos;s nowhere to post
+                this to yet.
+              </p>
+            </div>
+          ) : (
+            <form action={publishAction} className="space-y-4">
+              <input type="hidden" name="assetId" value={asset.id} />
+              <input type="hidden" name="caption" value={caption} />
+              <input type="hidden" name="hashtags" value={hashtags} />
 
-          <PublishOptions />
+              <PageSelector accounts={socialAccounts} />
+              <PublishOptions />
 
-          {publishState?.error && (
-            <p className="text-sm text-red-600">{publishState.error}</p>
+              {publishState?.error && (
+                <p className="text-sm text-red-600">{publishState.error}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={publishPending}
+                className="w-full rounded-lg bg-neutral-900 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+              >
+                Confirm
+              </button>
+            </form>
           )}
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setPhase("caption")}
-              className="flex-1 rounded-lg border border-neutral-300 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
-            >
-              Back
-            </button>
-            <button
-              type="submit"
-              disabled={publishPending}
-              className="flex-1 rounded-lg bg-neutral-900 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
-            >
-              {publishPending ? "Saving…" : "Confirm"}
-            </button>
-          </div>
-        </form>
+        </div>
       )}
 
       {phase === "done" && (
@@ -299,10 +324,11 @@ export function StudioWizard({
           <p className="text-sm font-medium text-neutral-900">
             {publishState && "post" in publishState && publishState.post?.status === "SCHEDULED"
               ? "Scheduled!"
-              : "Published!"}
+              : "Submitted for publishing!"}
           </p>
           <p className="text-sm text-neutral-500">
-            Find it under Content Calendar → Scheduler.
+            Find it under Content Calendar → Scheduler. A live link will
+            appear there once the connected page actually publishes it.
           </p>
           <button
             onClick={startOver}
@@ -312,6 +338,36 @@ export function StudioWizard({
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+function PageSelector({ accounts }: { accounts: SocialAccount[] }) {
+  const [selected, setSelected] = useState<string[]>([accounts[0]?.id].filter(Boolean));
+
+  return (
+    <div>
+      <input type="hidden" name="socialAccountIds" value={selected.join(",")} />
+      <label className="block text-sm font-medium text-neutral-700">Post to</label>
+      <div className="mt-1 space-y-1">
+        {accounts.map((acc) => (
+          <label
+            key={acc.id}
+            className="flex cursor-pointer items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm has-[:checked]:border-neutral-900"
+          >
+            <input
+              type="checkbox"
+              checked={selected.includes(acc.id)}
+              onChange={(e) =>
+                setSelected((prev) =>
+                  e.target.checked ? [...prev, acc.id] : prev.filter((id) => id !== acc.id)
+                )
+              }
+            />
+            {acc.platform} — {acc.external_id}
+          </label>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import type { ScheduledPost } from "./queries";
+import { buildLiveLink } from "./social-links";
 
 const STATUS_STYLES: Record<string, string> = {
   DRAFT: "bg-neutral-100 text-neutral-600",
@@ -51,6 +52,28 @@ export function SchedulerList({ posts }: { posts: ScheduledPost[] }) {
                 ? `Scheduled for ${formatDate(post.scheduled_for)}`
                 : `Created ${formatDate(post.created_at)}`}
             </p>
+            {post.targets.length > 0 && (
+              <div className="mt-1 flex flex-wrap gap-2">
+                {post.targets.map((t, i) => {
+                  const link = t.platformPostId ? buildLiveLink(t.platform, t.platformPostId) : null;
+                  return link ? (
+                    <a
+                      key={i}
+                      href={link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-medium text-blue-600 underline"
+                    >
+                      View live on {t.platform}
+                    </a>
+                  ) : (
+                    <span key={i} className="text-xs text-neutral-400">
+                      {t.platform}: pending platform connection
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <span

@@ -43,6 +43,17 @@ function buildPrompt(basePrompt: string, brandTone?: string | null, colors?: unk
     );
   }
 
+  // gpt-image-1 tends to render any requested text far too large and lets
+  // it bleed off the edges. Explicitly constrain size/placement whenever
+  // the request implies text/quotes should appear in the image.
+  parts.push(
+    "If the image includes any text, quote, or wording, render it small " +
+      "and clean \u2014 no more than 8-10 words, sized proportionally to the " +
+      "overall composition (not oversized), fully inside the frame with " +
+      "visible padding from every edge, and positioned so it doesn't " +
+      "overlap or crop into the main subject."
+  );
+
   return parts.join(" ");
 }
 
@@ -221,6 +232,7 @@ const scheduleSchema = z.object({
   hashtags: z.string().optional(),
   mode: z.enum(["now", "schedule"]),
   scheduledFor: z.string().optional(),
+  socialAccountIds: z.string().min(1, "Select at least one page to post to"),
 });
 
 export async function publishOrScheduleAction(
@@ -234,13 +246,19 @@ export async function publishOrScheduleAction(
     hashtags: formData.get("hashtags") || "",
     mode: formData.get("mode"),
     scheduledFor: formData.get("scheduledFor") || undefined,
+    socialAccountIds: formData.get("socialAccountIds"),
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { assetId, caption, hashtags, mode, scheduledFor } = parsed.data;
+  const { assetId, caption, hashtags, mode, scheduledFor, socialAccountIds } = parsed.data;
+  const accountIds = socialAccountIds.split(",").filter(Boolean);
+
+  if (accountIds.length === 0) {
+    return { error: "Select at least one connected page to post to." };
+  }
 
   if (mode === "schedule" && !scheduledFor) {
     return { error: "Pick a date and time to schedule this post" };
@@ -263,7 +281,7 @@ export async function publishOrScheduleAction(
       created_by: user.id,
       caption,
       hashtags: hashtagList,
-      status: mode === "now" ? "PUBLISHED" : "SCHEDULED",
+      status: mode === "now" ? "PUBLISHING" : "SCHEDULED",
       scheduled_for: mode === "schedule" ? new Date(scheduledFor!).toISOString() : null,
     })
     .select()
@@ -279,6 +297,22 @@ export async function publishOrScheduleAction(
 
   if (linkError) {
     return { error: linkError.message };
+  }
+
+  // Fan out to each selected page. No real publishing call happens here yet
+  // (that needs the Meta/LinkedIn/X app credentials registered under
+  // Settings \u2192 Social Media Accounts) \u2014 rows are created in PUBLISHING
+  // status so the Scheduler shows exactly what's pending vs. actually live
+  // (platform_post_id stays null until real integration fills it in).
+  const targetRows = accountIds.map((socialAccountId) => ({
+    post_id: post.id,
+    social_account_id: socialAccountId,
+    status: "PUBLISHING" as const,
+  }));
+
+  const { error: targetsError } = await supabase.from("post_targets").insert(targetRows);
+  if (targetsError) {
+    return { error: targetsError.message };
   }
 
   revalidatePath("/dashboard/studio");

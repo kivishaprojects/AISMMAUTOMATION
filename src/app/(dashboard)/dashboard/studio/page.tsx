@@ -1,6 +1,7 @@
 import { getCurrentUserOrgs } from "@/features/org/queries";
 import { getBrandKits } from "@/features/brand-kit/queries";
 import { getGeneratedImages } from "@/features/creative-studio/queries";
+import { getActiveSocialAccounts } from "@/features/scheduler/social-queries";
 import { StudioWizard } from "@/features/creative-studio/StudioWizard";
 import { AssetGallery } from "@/features/creative-studio/AssetGallery";
 
@@ -16,9 +17,10 @@ export default async function CreativeStudioPage() {
     );
   }
 
-  const [brandKits, images] = await Promise.all([
+  const [brandKits, images, socialAccounts] = await Promise.all([
     getBrandKits(org.id),
     getGeneratedImages(org.id),
+    getActiveSocialAccounts(org.id),
   ]);
 
   return (
@@ -32,7 +34,7 @@ export default async function CreativeStudioPage() {
         </p>
       </div>
 
-      <StudioWizard organizationId={org.id} brandKits={brandKits} />
+      <StudioWizard organizationId={org.id} brandKits={brandKits} socialAccounts={socialAccounts} />
 
       <div>
         <h2 className="mb-3 text-sm font-semibold text-neutral-900">

@@ -33,12 +33,16 @@ export function SchedulerList({ posts }: { posts: ScheduledPost[] }) {
       {posts.map((post) => (
         <div key={post.id} className="flex items-center gap-4 p-4">
           {post.assets[0]?.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={post.assets[0].url}
-              alt=""
-              className="h-14 w-14 shrink-0 rounded-lg object-cover"
-            />
+            post.assets[0].type === "VIDEO" ? (
+              <video src={post.assets[0].url} muted className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={post.assets[0].url}
+                alt=""
+                className="h-14 w-14 shrink-0 rounded-lg object-cover"
+              />
+            )
           ) : (
             <div className="h-14 w-14 shrink-0 rounded-lg bg-neutral-100" />
           )}

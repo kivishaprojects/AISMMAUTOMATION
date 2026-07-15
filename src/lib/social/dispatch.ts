@@ -1,6 +1,13 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { publishFacebookPhoto, publishInstagramPhoto, publishLinkedInPost } from "./publish";
+import {
+  publishFacebookPhoto,
+  publishFacebookVideo,
+  publishInstagramPhoto,
+  publishInstagramVideo,
+  publishLinkedInPost,
+  publishLinkedInVideo,
+} from "./publish";
 
 /**
  * Attempts to publish every PUBLISHING target for a post, using the
@@ -19,9 +26,11 @@ export async function attemptPublishPost(postId: string): Promise<void> {
 
   const { data: assetLinks } = await admin
     .from("post_assets")
-    .select("assets(url)")
+    .select("assets(url, type)")
     .eq("post_id", postId);
-  const imageUrl = (assetLinks as unknown as { assets: { url: string } }[] | null)?.[0]?.assets?.url;
+  const asset = (assetLinks as unknown as { assets: { url: string; type: string } }[] | null)?.[0]?.assets;
+  const mediaUrl = asset?.url;
+  const isVideo = asset?.type === "VIDEO";
 
   const captionWithTags = [post.caption, ...(post.hashtags ?? [])].filter(Boolean).join("\n\n");
 
@@ -48,10 +57,10 @@ export async function attemptPublishPost(postId: string): Promise<void> {
       }
     ).social_accounts;
 
-    if (!account || !account.access_token_encrypted || !imageUrl) {
+    if (!account || !account.access_token_encrypted || !mediaUrl) {
       await admin
         .from("post_targets")
-        .update({ status: "FAILED", error_message: "Missing account credentials or image" })
+        .update({ status: "FAILED", error_message: "Missing account credentials or media" })
         .eq("id", target.id);
       anyFailed = true;
       continue;
@@ -59,27 +68,49 @@ export async function attemptPublishPost(postId: string): Promise<void> {
 
     try {
       let platformPostId: string;
+
       if (account.platform === "FACEBOOK") {
-        platformPostId = await publishFacebookPhoto({
-          pageId: account.external_id,
-          pageAccessToken: account.access_token_encrypted,
-          imageUrl,
-          caption: captionWithTags,
-        });
+        platformPostId = isVideo
+          ? await publishFacebookVideo({
+              pageId: account.external_id,
+              pageAccessToken: account.access_token_encrypted,
+              videoUrl: mediaUrl,
+              caption: captionWithTags,
+            })
+          : await publishFacebookPhoto({
+              pageId: account.external_id,
+              pageAccessToken: account.access_token_encrypted,
+              imageUrl: mediaUrl,
+              caption: captionWithTags,
+            });
       } else if (account.platform === "INSTAGRAM") {
-        platformPostId = await publishInstagramPhoto({
-          igUserId: account.external_id,
-          pageAccessToken: account.access_token_encrypted,
-          imageUrl,
-          caption: captionWithTags,
-        });
+        platformPostId = isVideo
+          ? await publishInstagramVideo({
+              igUserId: account.external_id,
+              pageAccessToken: account.access_token_encrypted,
+              videoUrl: mediaUrl,
+              caption: captionWithTags,
+            })
+          : await publishInstagramPhoto({
+              igUserId: account.external_id,
+              pageAccessToken: account.access_token_encrypted,
+              imageUrl: mediaUrl,
+              caption: captionWithTags,
+            });
       } else if (account.platform === "LINKEDIN") {
-        platformPostId = await publishLinkedInPost({
-          authorUrn: account.external_id,
-          accessToken: account.access_token_encrypted,
-          imageUrl,
-          caption: captionWithTags,
-        });
+        platformPostId = isVideo
+          ? await publishLinkedInVideo({
+              authorUrn: account.external_id,
+              accessToken: account.access_token_encrypted,
+              videoUrl: mediaUrl,
+              caption: captionWithTags,
+            })
+          : await publishLinkedInPost({
+              authorUrn: account.external_id,
+              accessToken: account.access_token_encrypted,
+              imageUrl: mediaUrl,
+              caption: captionWithTags,
+            });
       } else {
         throw new Error(`Publishing to ${account.platform} isn't implemented yet`);
       }

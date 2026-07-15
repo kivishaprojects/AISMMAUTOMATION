@@ -8,7 +8,7 @@ export type PostTargetInfo = {
 };
 
 export type ScheduledPost = Tables<"posts"> & {
-  assets: { url: string }[];
+  assets: { url: string; type: string }[];
   targets: PostTargetInfo[];
 };
 
@@ -17,7 +17,7 @@ export async function getPosts(organizationId: string): Promise<ScheduledPost[]>
 
   const { data, error } = await supabase
     .from("posts")
-    .select("*, post_assets(assets(url)), post_targets(status, platform_post_id, social_accounts(platform))")
+    .select("*, post_assets(assets(url, type)), post_targets(status, platform_post_id, social_accounts(platform))")
     .eq("organization_id", organizationId)
     .order("scheduled_for", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
@@ -26,7 +26,7 @@ export async function getPosts(organizationId: string): Promise<ScheduledPost[]>
 
   return data.map((post) => ({
     ...post,
-    assets: (post.post_assets as unknown as { assets: { url: string } }[])
+    assets: (post.post_assets as unknown as { assets: { url: string; type: string } }[])
       ?.map((pa) => pa.assets)
       .filter(Boolean) ?? [],
     targets: (

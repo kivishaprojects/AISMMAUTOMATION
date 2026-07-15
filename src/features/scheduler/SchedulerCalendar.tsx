@@ -151,8 +151,12 @@ export function SchedulerCalendar({ posts }: { posts: ScheduledPost[] }) {
             {selectedPosts.map((p) => (
               <div key={p.id} className="flex items-center gap-3 rounded-lg border border-neutral-100 p-2">
                 {p.assets[0]?.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.assets[0].url} alt="" className="h-10 w-10 rounded object-cover" />
+                  p.assets[0].type === "VIDEO" ? (
+                    <video src={p.assets[0].url} muted className="h-10 w-10 rounded object-cover" />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.assets[0].url} alt="" className="h-10 w-10 rounded object-cover" />
+                  )
                 ) : (
                   <div className="h-10 w-10 rounded bg-neutral-100" />
                 )}

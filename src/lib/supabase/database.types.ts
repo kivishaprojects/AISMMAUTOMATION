@@ -422,6 +422,60 @@ export type Database = {
           },
         ]
       }
+      page_analysis_reports: {
+        Row: {
+          checklist: Json | null
+          created_at: string
+          created_by: string
+          id: string
+          organization_id: string
+          page_name: string | null
+          recommendations: string | null
+          score: number | null
+          social_account_id: string
+          stats: Json | null
+        }
+        Insert: {
+          checklist?: Json | null
+          created_at?: string
+          created_by: string
+          id?: string
+          organization_id: string
+          page_name?: string | null
+          recommendations?: string | null
+          score?: number | null
+          social_account_id: string
+          stats?: Json | null
+        }
+        Update: {
+          checklist?: Json | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          organization_id?: string
+          page_name?: string | null
+          recommendations?: string | null
+          score?: number | null
+          social_account_id?: string
+          stats?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_analysis_reports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "page_analysis_reports_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_assets: {
         Row: {
           asset_id: string

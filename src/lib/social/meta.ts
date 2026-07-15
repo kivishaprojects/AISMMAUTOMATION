@@ -117,4 +117,101 @@ export async function getManagedPages(userToken: string): Promise<ManagedPage[]>
   );
 }
 
+export type PageAuditPost = {
+  message: string | null;
+  createdTime: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  permalink: string | null;
+};
+
+export type PageAuditData = {
+  name: string;
+  about: string | null;
+  category: string | null;
+  fanCount: number | null;
+  followersCount: number | null;
+  hasWebsite: boolean;
+  hasPhone: boolean;
+  hasAddress: boolean;
+  hasHours: boolean;
+  hasProfilePicture: boolean;
+  hasCoverPhoto: boolean;
+  ratingCount: number | null;
+  overallStarRating: number | null;
+  recentPosts: PageAuditPost[];
+};
+
+/**
+ * Pulls the data needed for a page audit \u2014 works only for Pages this app
+ * actually manages (the pages_read_engagement scope we already request
+ * covers this). Meta does not allow pulling this level of detail for
+ * arbitrary third-party Pages without their own permission \u2014 that's a
+ * deliberate anti-scraping policy, not a gap in this integration.
+ */
+export async function getPageAuditData(pageId: string, pageAccessToken: string): Promise<PageAuditData> {
+  const fields = [
+    "name",
+    "about",
+    "category",
+    "fan_count",
+    "followers_count",
+    "website",
+    "phone",
+    "single_line_address",
+    "hours",
+    "picture{url}",
+    "cover{source}",
+    "rating_count",
+    "overall_star_rating",
+  ].join(",");
+
+  const pageRes = await fetch(`${GRAPH_BASE}/${pageId}?fields=${fields}&access_token=${pageAccessToken}`);
+  if (!pageRes.ok) {
+    throw new Error(`Page data lookup failed: ${await pageRes.text()}`);
+  }
+  const page = await pageRes.json();
+
+  const postsRes = await fetch(
+    `${GRAPH_BASE}/${pageId}/posts?fields=message,created_time,permalink_url,likes.summary(true),comments.summary(true),shares&limit=10&access_token=${pageAccessToken}`
+  );
+  const postsData = postsRes.ok ? await postsRes.json() : { data: [] };
+
+  const recentPosts: PageAuditPost[] = (postsData.data ?? []).map(
+    (p: {
+      message?: string;
+      created_time: string;
+      permalink_url?: string;
+      likes?: { summary?: { total_count?: number } };
+      comments?: { summary?: { total_count?: number } };
+      shares?: { count?: number };
+    }) => ({
+      message: p.message ?? null,
+      createdTime: p.created_time,
+      likes: p.likes?.summary?.total_count ?? 0,
+      comments: p.comments?.summary?.total_count ?? 0,
+      shares: p.shares?.count ?? 0,
+      permalink: p.permalink_url ?? null,
+    })
+  );
+
+  return {
+    name: page.name,
+    about: page.about ?? null,
+    category: page.category ?? null,
+    fanCount: page.fan_count ?? null,
+    followersCount: page.followers_count ?? null,
+    hasWebsite: !!page.website,
+    hasPhone: !!page.phone,
+    hasAddress: !!page.single_line_address,
+    hasHours: !!page.hours,
+    hasProfilePicture: !!page.picture?.data?.url || !!page.picture?.url,
+    hasCoverPhoto: !!page.cover?.source,
+    ratingCount: page.rating_count ?? null,
+    overallStarRating: page.overall_star_rating ?? null,
+    recentPosts,
+  };
+}
+
 export { GRAPH_BASE };

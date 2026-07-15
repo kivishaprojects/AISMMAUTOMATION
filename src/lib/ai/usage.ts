@@ -56,6 +56,7 @@ export async function debitWalletCredits(
 export const CREDIT_COSTS = {
   IMAGE: 5,
   VIDEO: 50,
+  PAGE_REPORT: 10,
 } as const;
 
 /**

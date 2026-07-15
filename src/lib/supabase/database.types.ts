@@ -202,6 +202,82 @@ export type Database = {
           },
         ]
       }
+      geo_check_results: {
+        Row: {
+          checked_at: string
+          id: string
+          mentioned: boolean
+          organization_id: string
+          provider: string
+          response_snippet: string | null
+          tracked_prompt_id: string
+        }
+        Insert: {
+          checked_at?: string
+          id?: string
+          mentioned: boolean
+          organization_id: string
+          provider?: string
+          response_snippet?: string | null
+          tracked_prompt_id: string
+        }
+        Update: {
+          checked_at?: string
+          id?: string
+          mentioned?: boolean
+          organization_id?: string
+          provider?: string
+          response_snippet?: string | null
+          tracked_prompt_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "geo_check_results_tracked_prompt_id_fkey"
+            columns: ["tracked_prompt_id"]
+            isOneToOne: false
+            referencedRelation: "geo_tracked_prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      geo_tracked_prompts: {
+        Row: {
+          active: boolean
+          brand_name: string
+          created_at: string
+          created_by: string
+          id: string
+          organization_id: string
+          prompt: string
+        }
+        Insert: {
+          active?: boolean
+          brand_name: string
+          created_at?: string
+          created_by: string
+          id?: string
+          organization_id: string
+          prompt: string
+        }
+        Update: {
+          active?: boolean
+          brand_name?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          organization_id?: string
+          prompt?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "geo_tracked_prompts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inbox_messages: {
         Row: {
           ai_suggested_reply: string | null
@@ -591,6 +667,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "posts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_audits: {
+        Row: {
+          checks: Json | null
+          created_at: string
+          created_by: string
+          id: string
+          organization_id: string
+          pagespeed: Json | null
+          recommendations: string | null
+          score: number | null
+          url: string
+        }
+        Insert: {
+          checks?: Json | null
+          created_at?: string
+          created_by: string
+          id?: string
+          organization_id: string
+          pagespeed?: Json | null
+          recommendations?: string | null
+          score?: number | null
+          url: string
+        }
+        Update: {
+          checks?: Json | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          organization_id?: string
+          pagespeed?: Json | null
+          recommendations?: string | null
+          score?: number | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_audits_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"

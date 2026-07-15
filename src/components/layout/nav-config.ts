@@ -15,6 +15,9 @@ import {
   UserCircle,
   Lock,
   Gauge,
+  Search,
+  Code2,
+  Radar,
 } from "lucide-react";
 
 export type NavLeaf = { label: string; href: string; badge?: string; icon: LucideIcon };
@@ -46,6 +49,9 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: Gauge,
     items: [
       { label: "Page Analyzer", href: "/dashboard/analytics/page-analyzer", icon: Gauge },
+      { label: "SEO Audit", href: "/dashboard/analytics/seo-audit", icon: Search },
+      { label: "Schema Generator", href: "/dashboard/analytics/schema-generator", icon: Code2 },
+      { label: "GEO Tracking", href: "/dashboard/analytics/geo-tracking", icon: Radar },
     ],
   },
   {

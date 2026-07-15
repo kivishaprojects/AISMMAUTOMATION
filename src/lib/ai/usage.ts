@@ -57,6 +57,9 @@ export const CREDIT_COSTS = {
   IMAGE: 5,
   VIDEO: 50,
   PAGE_REPORT: 10,
+  SEO_AUDIT: 10,
+  GEO_CHECK: 2,
+  SCHEMA_GEN: 2,
 } as const;
 
 /**

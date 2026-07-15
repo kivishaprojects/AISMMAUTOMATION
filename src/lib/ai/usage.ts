@@ -60,6 +60,7 @@ export const CREDIT_COSTS = {
   SEO_AUDIT: 10,
   GEO_CHECK: 2,
   SCHEMA_GEN: 2,
+  KEYWORD_ANALYSIS: 5,
 } as const;
 
 /**

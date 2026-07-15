@@ -328,6 +328,47 @@ export type Database = {
           },
         ]
       }
+      keyword_reports: {
+        Row: {
+          clusters: Json | null
+          created_at: string
+          created_by: string
+          gaps: string | null
+          id: string
+          keywords_input: string
+          organization_id: string
+          topic: string | null
+        }
+        Insert: {
+          clusters?: Json | null
+          created_at?: string
+          created_by: string
+          gaps?: string | null
+          id?: string
+          keywords_input: string
+          organization_id: string
+          topic?: string | null
+        }
+        Update: {
+          clusters?: Json | null
+          created_at?: string
+          created_by?: string
+          gaps?: string | null
+          id?: string
+          keywords_input?: string
+          organization_id?: string
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyword_reports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           created_at: string

@@ -19,6 +19,13 @@ import {
   Code2,
   Radar,
   GitBranch,
+  Layers,
+  Users2,
+  FileText,
+  Workflow,
+  TrendingUp,
+  Sparkle,
+  Gauge as CommandCenterIcon,
 } from "lucide-react";
 
 export type NavLeaf = { label: string; href: string; badge?: string; icon: LucideIcon };
@@ -46,13 +53,26 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Analytics",
-    icon: Gauge,
+    label: "SEO Tools",
+    icon: Search,
     items: [
-      { label: "Page Analyzer", href: "/dashboard/analytics/page-analyzer", icon: Gauge },
-      { label: "SEO Audit", href: "/dashboard/analytics/seo-audit", icon: Search },
-      { label: "Schema Generator", href: "/dashboard/analytics/schema-generator", icon: Code2 },
-      { label: "GEO Tracking", href: "/dashboard/analytics/geo-tracking", icon: Radar },
+      { label: "Keyword Intelligence", href: "/dashboard/seo/keyword-intelligence", icon: Layers },
+      { label: "Competitor Intelligence", href: "/dashboard/seo/competitor-intelligence", icon: Users2, badge: "Soon" },
+      { label: "Content Studio", href: "/dashboard/seo/content-studio", icon: FileText, badge: "Soon" },
+      { label: "Technical SEO Auditor", href: "/dashboard/seo/technical-audit", icon: Gauge },
+      { label: "Internal Linking Engine", href: "/dashboard/seo/internal-linking", icon: Workflow, badge: "Soon" },
+      { label: "Schema Generator", href: "/dashboard/seo/schema-generator", icon: Code2 },
+      { label: "Automation Workflows", href: "/dashboard/seo/automation", icon: Workflow, badge: "Soon" },
+      { label: "Rank & AI Visibility", href: "/dashboard/seo/rank-tracking", icon: TrendingUp },
+      { label: "LLM / GEO Optimization", href: "/dashboard/seo/llm-optimization", icon: Sparkle, badge: "Soon" },
+      { label: "SEO Command Center", href: "/dashboard/seo/command-center", icon: CommandCenterIcon, badge: "Soon" },
+    ],
+  },
+  {
+    label: "Social Analytics",
+    icon: Radar,
+    items: [
+      { label: "Page Analyzer", href: "/dashboard/analytics/page-analyzer", icon: Radar },
     ],
   },
   {

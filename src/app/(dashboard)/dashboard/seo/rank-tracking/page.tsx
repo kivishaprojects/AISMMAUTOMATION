@@ -2,7 +2,7 @@ import { getCurrentUserOrgs } from "@/features/org/queries";
 import { getTrackedPromptsWithHistory } from "@/features/seo/geo-queries";
 import { GeoTracking } from "@/features/seo/GeoTracking";
 
-export default async function GeoTrackingPage() {
+export default async function RankTrackingPage() {
   const orgs = await getCurrentUserOrgs();
   const org = orgs[0];
 
@@ -15,9 +15,10 @@ export default async function GeoTrackingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-neutral-900">GEO / AI Visibility Tracking</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900">Rank & AI Visibility Tracking</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Track whether your brand gets mentioned when people ask AI tools things related to your business.
+          AI-mention tracking (below) is fully live. Traditional Google SERP position tracking
+          needs a paid data API (SerpApi/DataForSEO) that isn&apos;t connected yet — ask if you want it wired in.
         </p>
       </div>
       <GeoTracking organizationId={org.id} prompts={prompts} />

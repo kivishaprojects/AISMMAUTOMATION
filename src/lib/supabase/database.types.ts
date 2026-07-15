@@ -373,6 +373,9 @@ export type Database = {
           parent_org_id: string | null
           plan: Database["public"]["Enums"]["plan_type"]
           slug: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
           updated_at: string
         }
         Insert: {
@@ -384,6 +387,9 @@ export type Database = {
           parent_org_id?: string | null
           plan?: Database["public"]["Enums"]["plan_type"]
           slug: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
           updated_at?: string
         }
         Update: {
@@ -395,6 +401,9 @@ export type Database = {
           parent_org_id?: string | null
           plan?: Database["public"]["Enums"]["plan_type"]
           slug?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
           updated_at?: string
         }
         Relationships: [

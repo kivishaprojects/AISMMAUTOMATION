@@ -17,6 +17,7 @@ export type Database = {
           cost_cents: number | null
           created_at: string
           created_by: string
+          external_job_id: string | null
           id: string
           organization_id: string
           prompt: string
@@ -29,6 +30,7 @@ export type Database = {
           cost_cents?: number | null
           created_at?: string
           created_by: string
+          external_job_id?: string | null
           id?: string
           organization_id: string
           prompt: string
@@ -41,6 +43,7 @@ export type Database = {
           cost_cents?: number | null
           created_at?: string
           created_by?: string
+          external_job_id?: string | null
           id?: string
           organization_id?: string
           prompt?: string
@@ -367,6 +370,7 @@ export type Database = {
         Row: {
           brand_config: Json | null
           created_at: string
+          credits_balance: number
           id: string
           is_white_label: boolean
           name: string
@@ -381,6 +385,7 @@ export type Database = {
         Insert: {
           brand_config?: Json | null
           created_at?: string
+          credits_balance?: number
           id?: string
           is_white_label?: boolean
           name: string
@@ -395,6 +400,7 @@ export type Database = {
         Update: {
           brand_config?: Json | null
           created_at?: string
+          credits_balance?: number
           id?: string
           is_white_label?: boolean
           name?: string
@@ -582,6 +588,44 @@ export type Database = {
           },
         ]
       }
+      wallet_transactions: {
+        Row: {
+          created_at: string
+          credits: number
+          description: string | null
+          id: string
+          organization_id: string
+          stripe_payment_intent_id: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          credits: number
+          description?: string | null
+          id?: string
+          organization_id: string
+          stripe_payment_intent_id?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          description?: string | null
+          id?: string
+          organization_id?: string
+          stripe_payment_intent_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -590,6 +634,10 @@ export type Database = {
       create_organization_with_owner: {
         Args: { org_name: string; org_slug: string }
         Returns: Database["public"]["Tables"]["organizations"]["Row"]
+      }
+      deduct_wallet_credits: {
+        Args: { org_id: string; amount: number; description: string }
+        Returns: number
       }
       user_has_role: {
         Args: {

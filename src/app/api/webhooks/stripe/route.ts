@@ -25,8 +25,41 @@ export async function POST(request: Request) {
 
   switch (event.type) {
     case "checkout.session.completed": {
-      const session = event.data.object as { metadata?: Record<string, string>; subscription?: string; customer?: string };
+      const session = event.data.object as {
+        metadata?: Record<string, string>;
+        subscription?: string;
+        customer?: string;
+        payment_intent?: string;
+      };
       const organizationId = session.metadata?.organization_id;
+
+      if (session.metadata?.type === "wallet_topup" && organizationId) {
+        const credits = parseInt(session.metadata.credits ?? "0", 10);
+        if (credits > 0) {
+          const { data: org } = await admin
+            .from("organizations")
+            .select("credits_balance")
+            .eq("id", organizationId)
+            .single();
+
+          if (org) {
+            await admin
+              .from("organizations")
+              .update({ credits_balance: org.credits_balance + credits })
+              .eq("id", organizationId);
+
+            await admin.from("wallet_transactions").insert({
+              organization_id: organizationId,
+              type: "PURCHASE",
+              credits,
+              description: `Purchased ${credits} credits`,
+              stripe_payment_intent_id: session.payment_intent ?? null,
+            });
+          }
+        }
+        break;
+      }
+
       const tier = session.metadata?.tier as PlanTier | undefined;
       if (organizationId && tier && PLAN_TIERS.some((p) => p.tier === tier)) {
         await admin

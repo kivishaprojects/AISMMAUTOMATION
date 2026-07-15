@@ -5,29 +5,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { generateImageOpenAI } from "@/lib/ai/openai-image";
 import { generateCaptionOpenAI } from "@/lib/ai/openai-text";
+import { resolveOpenAiKey, debitWalletCredits, refundWalletCredits, CREDIT_COSTS } from "@/lib/ai/usage";
 import { generateImageSchema, ASPECT_RATIO_TO_SIZE } from "./schema";
-
-/**
- * Resolves which OpenAI key to use for this org: their own key if they've
- * set Settings → My API Keys to "My own key", otherwise null (falls back
- * to the platform-managed OPENAI_API_KEY env var inside the AI helpers).
- */
-async function resolveOpenAiKey(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  organizationId: string
-): Promise<string | null> {
-  const { data } = await supabase
-    .from("org_integrations")
-    .select("mode, api_key")
-    .eq("organization_id", organizationId)
-    .eq("provider", "openai")
-    .maybeSingle();
-
-  if (data?.mode === "CUSTOM" && data.api_key) {
-    return data.api_key;
-  }
-  return null;
-}
 
 function buildPrompt(basePrompt: string, brandTone?: string | null, colors?: unknown) {
   const parts = [basePrompt];
@@ -96,6 +75,18 @@ export async function generateImageAction(
 
   const finalPrompt = buildPrompt(prompt, brandTone, brandColors);
   const apiKeyOverride = await resolveOpenAiKey(supabase, organizationId);
+
+  // Only platform-managed usage (no custom key) draws from the wallet \u2014
+  // bring-your-own-key orgs pay OpenAI directly, so nothing to deduct.
+  if (!apiKeyOverride) {
+    const { error: debitError } = await debitWalletCredits(
+      supabase,
+      organizationId,
+      CREDIT_COSTS.IMAGE,
+      "Image generation"
+    );
+    if (debitError) return { error: debitError };
+  }
 
   // Create the job row first (status QUEUED) so there's a durable record
   // even if generation fails partway through — this also gives the UI
@@ -167,6 +158,9 @@ export async function generateImageAction(
       .from("ai_generation_jobs")
       .update({ status: "FAILED" })
       .eq("id", job.id);
+    if (!apiKeyOverride) {
+      await refundWalletCredits(organizationId, CREDIT_COSTS.IMAGE, "Refund: failed image generation");
+    }
     return { error: message };
   }
 }

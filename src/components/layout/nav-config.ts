@@ -10,7 +10,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Creative Studio",
     items: [
       { label: "Create Images", href: "/dashboard/studio" },
-      { label: "Create Videos", href: "/dashboard/studio/videos", badge: "Soon" },
+      { label: "Create Videos", href: "/dashboard/studio/videos" },
     ],
   },
   {

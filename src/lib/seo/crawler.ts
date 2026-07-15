@@ -11,14 +11,23 @@ export type CrawlResult = {
   metaDescription: string | null;
   h1Count: number;
   h1Text: string[];
+  h2Text: string[];
+  h3Text: string[];
   imagesTotal: number;
   imagesMissingAlt: number;
   imagesMissingAltSrcs: string[];
   imagesMissingAltSample: MissingAltImage[];
   hasCanonical: boolean;
+  canonicalUrl: string | null;
   isNoindex: boolean;
   hasViewportMeta: boolean;
   schemaTypes: string[];
+  hasFaqSchema: boolean;
+  ogTitle: string | null;
+  ogDescription: string | null;
+  ogImage: string | null;
+  twitterCard: string | null;
+  ctaTexts: string[];
   internalLinks: string[];
   externalLinks: string[];
   wordCount: number;
@@ -41,6 +50,8 @@ export async function crawlPage(url: string): Promise<CrawlResult> {
   const title = $("title").first().text().trim() || null;
   const metaDescription = $('meta[name="description"]').attr("content")?.trim() || null;
   const h1Text = $("h1").map((_, el) => $(el).text().trim()).get().filter(Boolean);
+  const h2Text = $("h2").map((_, el) => $(el).text().trim()).get().filter(Boolean);
+  const h3Text = $("h3").map((_, el) => $(el).text().trim()).get().filter(Boolean);
   const images = $("img");
   const imagesMissingAltSrcs: string[] = [];
   images.each((_, el) => {
@@ -67,18 +78,37 @@ export async function crawlPage(url: string): Promise<CrawlResult> {
     imagesMissingAltSample.push({ src: new URL(src, finalUrl).toString(), nearbyText });
   });
   const hasCanonical = $('link[rel="canonical"]').length > 0;
+  const canonicalUrl = $('link[rel="canonical"]').attr("href") || null;
   const robotsContent = $('meta[name="robots"]').attr("content")?.toLowerCase() ?? "";
   const isNoindex = robotsContent.includes("noindex");
   const hasViewportMeta = $('meta[name="viewport"]').length > 0;
 
+  const ogTitle = $('meta[property="og:title"]').attr("content") || null;
+  const ogDescription = $('meta[property="og:description"]').attr("content") || null;
+  const ogImage = $('meta[property="og:image"]').attr("content") || null;
+  const twitterCard = $('meta[name="twitter:card"]').attr("content") || null;
+
+  const ctaTexts: string[] = [];
+  $("a, button").each((_, el) => {
+    const text = $(el).text().trim();
+    if (text && text.length < 40 && /\b(buy|shop|order|book|call|contact|sign up|get started|subscribe|download|learn more|request|schedule|try)\b/i.test(text)) {
+      ctaTexts.push(text);
+    }
+  });
+
   const schemaTypes: string[] = [];
+  let hasFaqSchema = false;
   $('script[type="application/ld+json"]').each((_, el) => {
     try {
       const parsed = JSON.parse($(el).text());
       const items = Array.isArray(parsed) ? parsed : [parsed];
       for (const item of items) {
         const type = item["@type"];
-        if (type) schemaTypes.push(Array.isArray(type) ? type.join(", ") : type);
+        if (type) {
+          const typeStr = Array.isArray(type) ? type.join(", ") : type;
+          schemaTypes.push(typeStr);
+          if (typeStr.includes("FAQPage")) hasFaqSchema = true;
+        }
       }
     } catch {
       // malformed JSON-LD \u2014 ignore rather than fail the whole audit
@@ -108,14 +138,23 @@ export async function crawlPage(url: string): Promise<CrawlResult> {
     metaDescription,
     h1Count: h1Text.length,
     h1Text,
+    h2Text,
+    h3Text,
     imagesTotal: images.length,
     imagesMissingAlt,
     imagesMissingAltSrcs,
     imagesMissingAltSample,
     hasCanonical,
+    canonicalUrl,
     isNoindex,
     hasViewportMeta,
     schemaTypes,
+    hasFaqSchema,
+    ogTitle,
+    ogDescription,
+    ogImage,
+    twitterCard,
+    ctaTexts: [...new Set(ctaTexts)].slice(0, 10),
     internalLinks: [...internalLinks].slice(0, 50),
     externalLinks: [...externalLinks].slice(0, 50),
     wordCount,

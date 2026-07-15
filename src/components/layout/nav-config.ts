@@ -56,6 +56,8 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "SEO Tools",
     icon: Search,
     items: [
+      { label: "On-Page Checker", href: "/dashboard/seo/on-page-checker", icon: Search },
+      { label: "Crawlability", href: "/dashboard/seo/crawlability", icon: Workflow },
       { label: "Keyword Intelligence", href: "/dashboard/seo/keyword-intelligence", icon: Layers },
       { label: "Competitor Intelligence", href: "/dashboard/seo/competitor-intelligence", icon: Users2, badge: "Soon" },
       { label: "Content Studio", href: "/dashboard/seo/content-studio", icon: FileText, badge: "Soon" },

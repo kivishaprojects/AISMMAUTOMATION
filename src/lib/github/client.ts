@@ -57,12 +57,17 @@ export type FileEdit = {
   replace: string;
 };
 
+export type FileCreate = {
+  path: string;
+  content: string;
+};
+
 /**
- * Creates a branch, applies simple find/replace edits to the given files,
- * commits them, and opens a Pull Request. Deliberately does NOT push
- * straight to the default branch \u2014 a PR is the safety net for changes an
- * AI proposed, so a human still reviews the actual diff before it goes
- * live.
+ * Creates a branch, applies simple find/replace edits and/or creates new
+ * files, commits them, and opens a Pull Request. Deliberately does NOT
+ * push straight to the default branch \u2014 a PR is the safety net for
+ * changes an AI proposed, so a human still reviews the actual diff before
+ * it goes live.
  */
 export async function openFixPullRequest({
   owner,
@@ -72,6 +77,7 @@ export async function openFixPullRequest({
   title,
   body,
   edits,
+  creates = [],
 }: {
   owner: string;
   repo: string;
@@ -80,6 +86,7 @@ export async function openFixPullRequest({
   title: string;
   body: string;
   edits: FileEdit[];
+  creates?: FileCreate[];
 }): Promise<string> {
   await verifyRepoAccess(owner, repo, token);
   const { branch: baseBranch, sha: baseSha } = await getDefaultBranchSha(owner, repo, token);
@@ -105,7 +112,7 @@ export async function openFixPullRequest({
     for (const edit of pathEdits) {
       if (!updated.includes(edit.find)) {
         throw new Error(
-          `Could not find the expected text in ${path} to replace \u2014 the file may have changed since the audit ran.`
+          `Could not find the expected text in ${path} to replace \u2014 the file may have changed since it was analyzed.`
         );
       }
       updated = updated.replace(edit.find, edit.replace);
@@ -115,7 +122,7 @@ export async function openFixPullRequest({
       method: "PUT",
       headers: headers(token),
       body: JSON.stringify({
-        message: `SEO fix: update ${path}`,
+        message: `AI fix: update ${path}`,
         content: Buffer.from(updated, "utf-8").toString("base64"),
         sha,
         branch: branchName,
@@ -123,6 +130,34 @@ export async function openFixPullRequest({
     });
     if (!updateRes.ok) {
       throw new Error(`Could not commit changes to ${path}: ${await updateRes.text()}`);
+    }
+  }
+
+  for (const file of creates) {
+    // Check whether the file already exists on this branch so we send its
+    // sha (required for GitHub to treat this as an update rather than a
+    // create) \u2014 covers regenerating robots.txt/sitemap files that already
+    // exist in the repo.
+    let existingSha: string | undefined;
+    try {
+      const existing = await getFileContent(owner, repo, file.path, branchName, token);
+      existingSha = existing.sha;
+    } catch {
+      // file doesn't exist yet on this branch \u2014 that's fine, it's a create
+    }
+
+    const createRes = await fetch(`${API}/repos/${owner}/${repo}/contents/${file.path}`, {
+      method: "PUT",
+      headers: headers(token),
+      body: JSON.stringify({
+        message: `AI fix: ${existingSha ? "update" : "create"} ${file.path}`,
+        content: Buffer.from(file.content, "utf-8").toString("base64"),
+        ...(existingSha ? { sha: existingSha } : {}),
+        branch: branchName,
+      }),
+    });
+    if (!createRes.ok) {
+      throw new Error(`Could not write ${file.path}: ${await createRes.text()}`);
     }
   }
 

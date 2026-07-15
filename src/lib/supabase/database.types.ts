@@ -856,6 +856,65 @@ export type Database = {
           },
         ]
       }
+      site_changes: {
+        Row: {
+          batch_id: string
+          change_type: string
+          created_at: string
+          created_by: string
+          current_value: string | null
+          file_path: string | null
+          id: string
+          label: string
+          organization_id: string
+          page_url: string | null
+          pr_url: string | null
+          proposed_value: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          batch_id?: string
+          change_type: string
+          created_at?: string
+          created_by: string
+          current_value?: string | null
+          file_path?: string | null
+          id?: string
+          label: string
+          organization_id: string
+          page_url?: string | null
+          pr_url?: string | null
+          proposed_value: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          batch_id?: string
+          change_type?: string
+          created_at?: string
+          created_by?: string
+          current_value?: string | null
+          file_path?: string | null
+          id?: string
+          label?: string
+          organization_id?: string
+          page_url?: string | null
+          pr_url?: string | null
+          proposed_value?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_changes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_accounts: {
         Row: {
           access_token_encrypted: string | null

@@ -307,12 +307,25 @@ export async function publishOrScheduleAction(
   const targetRows = accountIds.map((socialAccountId) => ({
     post_id: post.id,
     social_account_id: socialAccountId,
-    status: "PUBLISHING" as const,
+    status: mode === "now" ? ("PUBLISHING" as const) : ("SCHEDULED" as const),
   }));
 
   const { error: targetsError } = await supabase.from("post_targets").insert(targetRows);
   if (targetsError) {
     return { error: targetsError.message };
+  }
+
+  if (mode === "now") {
+    // Fire-and-await: attempt real publishing to each selected page right
+    // now. If Meta credentials aren't configured yet, this fails cleanly
+    // and marks targets/post as FAILED rather than pretending it worked.
+    try {
+      const { attemptPublishPost } = await import("@/lib/social/dispatch");
+      await attemptPublishPost(post.id);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Publishing failed";
+      return { error: message };
+    }
   }
 
   revalidatePath("/dashboard/studio");

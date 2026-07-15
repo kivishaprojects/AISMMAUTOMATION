@@ -1,11 +1,24 @@
-const PLATFORMS = [
-  { name: "Facebook", color: "#1877F2" },
-  { name: "Instagram", color: "#E4405F" },
-  { name: "X (Twitter)", color: "#000000" },
-  { name: "LinkedIn", color: "#0A66C2" },
-];
+import { getCurrentUserOrgs } from "@/features/org/queries";
+import { getActiveSocialAccounts } from "@/features/scheduler/social-queries";
+import { connectMetaAction } from "@/features/settings/social-accounts-actions";
+import { DisconnectButton } from "@/features/settings/DisconnectButton";
 
-export default function SocialAccountsPage() {
+export default async function SocialAccountsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ connected?: string; error?: string }>;
+}) {
+  const orgs = await getCurrentUserOrgs();
+  const org = orgs[0];
+  const params = await searchParams;
+
+  if (!org) {
+    return <p className="text-sm text-neutral-500">You&apos;re not part of an organization yet.</p>;
+  }
+
+  const accounts = await getActiveSocialAccounts(org.id);
+  const metaAccounts = accounts.filter((a) => a.platform === "FACEBOOK" || a.platform === "INSTAGRAM");
+
   return (
     <div className="max-w-xl space-y-6">
       <div>
@@ -15,29 +28,56 @@ export default function SocialAccountsPage() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-        Connecting real accounts requires registering an app with each
-        platform (Meta App Review for Facebook/Instagram, a Twitter/X
-        developer app, a LinkedIn app) and adding the resulting client
-        credentials as environment variables. That&apos;s a one-time setup
-        step outside this app — once done, these buttons wire up to real
-        OAuth flows against the <code>social_accounts</code> table already
-        in the schema.
+      {params.connected && (
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+          Connected successfully.
+        </div>
+      )}
+      {params.error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          {decodeURIComponent(params.error)}
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-neutral-900">Facebook &amp; Instagram</p>
+            <p className="mt-0.5 text-xs text-neutral-500">
+              Connects any Page you manage, plus its linked Instagram Business account.
+            </p>
+          </div>
+          <form action={connectMetaAction.bind(null, org.id)}>
+            <button
+              type="submit"
+              className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+            >
+              Connect
+            </button>
+          </form>
+        </div>
+
+        {metaAccounts.length > 0 && (
+          <div className="mt-4 space-y-2 border-t border-neutral-100 pt-4">
+            {metaAccounts.map((acc) => (
+              <div key={acc.id} className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2">
+                <span className="text-sm text-neutral-700">
+                  {acc.platform} · {acc.external_id}
+                </span>
+                <DisconnectButton accountId={acc.id} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">
-        {PLATFORMS.map((p) => (
+        {["X (Twitter)", "LinkedIn"].map((name) => (
           <div
-            key={p.name}
+            key={name}
             className="flex items-center justify-between rounded-2xl border border-neutral-200 bg-white p-4"
           >
-            <div className="flex items-center gap-3">
-              <div
-                className="h-8 w-8 rounded-full"
-                style={{ backgroundColor: p.color }}
-              />
-              <span className="text-sm font-medium text-neutral-900">{p.name}</span>
-            </div>
+            <span className="text-sm font-medium text-neutral-900">{name}</span>
             <button
               disabled
               className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-400"

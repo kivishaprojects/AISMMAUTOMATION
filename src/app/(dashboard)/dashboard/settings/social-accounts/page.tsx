@@ -52,7 +52,7 @@ export default async function SocialAccountsPage({
           <form action={connectMetaAction.bind(null, org.id)}>
             <button
               type="submit"
-              className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
             >
               Connect
             </button>
@@ -85,7 +85,7 @@ export default async function SocialAccountsPage({
           <form action={connectLinkedInAction.bind(null, org.id)}>
             <button
               type="submit"
-              className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
             >
               Connect
             </button>

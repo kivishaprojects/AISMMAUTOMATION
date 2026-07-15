@@ -63,7 +63,7 @@ export default async function WalletPage({
             <form action={buyCreditsAction.bind(null, org.id, pack.credits)} className="mt-4">
               <button
                 type="submit"
-                className="w-full rounded-lg bg-neutral-900 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+                className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700"
               >
                 Buy
               </button>

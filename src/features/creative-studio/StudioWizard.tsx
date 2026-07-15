@@ -102,9 +102,9 @@ export function StudioWizard({
               <div
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                   isActive
-                    ? "bg-neutral-900 text-white"
+                    ? "bg-brand-600 text-white"
                     : isDone
-                    ? "bg-neutral-900/80 text-white"
+                    ? "bg-brand-600/80 text-white"
                     : "bg-neutral-100 text-neutral-400"
                 }`}
               >
@@ -137,7 +137,7 @@ export function StudioWizard({
               required
               rows={3}
               placeholder="e.g. A festive Diwali promotional banner for a sweets shop, warm gold and maroon tones, diyas and rangoli in the background"
-              className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
             />
           </div>
 
@@ -150,7 +150,7 @@ export function StudioWizard({
                 name="brandKitId"
                 value={selectedBrandKitId}
                 onChange={(e) => setSelectedBrandKitId(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
               >
                 <option value="">None</option>
                 {brandKits.map((kit) => (
@@ -165,7 +165,7 @@ export function StudioWizard({
               <select
                 name="aspectRatio"
                 defaultValue="square"
-                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
               >
                 <option value="square">Square (1:1) — feed post</option>
                 <option value="portrait">Portrait — story/reel</option>
@@ -179,7 +179,7 @@ export function StudioWizard({
           <button
             type="submit"
             disabled={genPending}
-            className="w-full rounded-lg bg-neutral-900 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-50"
+            className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
           >
             Generate image
           </button>
@@ -212,7 +212,7 @@ export function StudioWizard({
                 captionAction(fd);
               }}
               disabled={captionPending}
-              className="flex-1 rounded-lg bg-neutral-900 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-brand-600 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
             >
               {captionPending ? "Writing caption…" : "Approve → Write caption"}
             </button>
@@ -240,7 +240,7 @@ export function StudioWizard({
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
                   rows={3}
-                  className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
                 />
               </div>
               <div>
@@ -248,7 +248,7 @@ export function StudioWizard({
                 <input
                   value={hashtags}
                   onChange={(e) => setHashtags(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
                 />
               </div>
             </div>
@@ -263,7 +263,7 @@ export function StudioWizard({
             </button>
             <button
               onClick={() => setPhase("publish")}
-              className="flex-1 rounded-lg bg-neutral-900 py-2.5 text-sm font-medium text-white hover:bg-neutral-800"
+              className="flex-1 rounded-lg bg-brand-600 py-2.5 text-sm font-medium text-white hover:bg-brand-700"
             >
               Continue → Publish or schedule
             </button>
@@ -310,7 +310,7 @@ export function StudioWizard({
               <button
                 type="submit"
                 disabled={publishPending}
-                className="w-full rounded-lg bg-neutral-900 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+                className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
               >
                 Confirm
               </button>
@@ -332,7 +332,7 @@ export function StudioWizard({
           </p>
           <button
             onClick={startOver}
-            className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
           >
             Create another
           </button>
@@ -353,7 +353,7 @@ function PageSelector({ accounts }: { accounts: SocialAccount[] }) {
         {accounts.map((acc) => (
           <label
             key={acc.id}
-            className="flex cursor-pointer items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm has-[:checked]:border-neutral-900"
+            className="flex cursor-pointer items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm has-[:checked]:border-brand-600"
           >
             <input
               type="checkbox"
@@ -378,7 +378,7 @@ function PublishOptions() {
   return (
     <div className="space-y-3">
       <div className="flex gap-3">
-        <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm has-[:checked]:border-neutral-900">
+        <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm has-[:checked]:border-brand-600">
           <input
             type="radio"
             name="mode"
@@ -388,7 +388,7 @@ function PublishOptions() {
           />
           Publish now
         </label>
-        <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm has-[:checked]:border-neutral-900">
+        <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm has-[:checked]:border-brand-600">
           <input
             type="radio"
             name="mode"
@@ -404,7 +404,7 @@ function PublishOptions() {
           type="datetime-local"
           name="scheduledFor"
           required
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
         />
       )}
     </div>

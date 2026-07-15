@@ -65,7 +65,7 @@ export function VideoStudio({
             required
             rows={3}
             placeholder="e.g. A close-up of steaming filter coffee being poured into a glass tumbler, warm morning light, slow motion"
-            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           />
         </div>
         <div>
@@ -73,7 +73,7 @@ export function VideoStudio({
           <select
             name="aspectRatio"
             defaultValue="landscape"
-            className="mt-1 w-full max-w-xs rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+            className="mt-1 w-full max-w-xs rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           >
             <option value="landscape">Landscape — feed/YouTube</option>
             <option value="portrait">Portrait — Reels/Shorts</option>
@@ -85,7 +85,7 @@ export function VideoStudio({
         <button
           type="submit"
           disabled={genPending || !!pollingJobId}
-          className="w-full rounded-lg bg-neutral-900 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-50"
+          className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
         >
           {genPending ? "Starting…" : pollingJobId ? "Generating…" : "Generate video"}
         </button>

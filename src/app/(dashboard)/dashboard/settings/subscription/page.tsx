@@ -53,7 +53,7 @@ export default async function SubscriptionPage({
               <button
                 type="submit"
                 disabled={orgRow?.plan === tier.tier}
-                className="w-full rounded-lg bg-neutral-900 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:cursor-default disabled:bg-neutral-200 disabled:text-neutral-400"
+                className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-default disabled:bg-neutral-200 disabled:text-neutral-400"
               >
                 {orgRow?.plan === tier.tier ? "Current plan" : "Choose plan"}
               </button>

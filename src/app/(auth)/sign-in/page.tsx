@@ -35,7 +35,7 @@ export default function SignInPage() {
               name="email"
               type="email"
               required
-              className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
             />
           </div>
           <div>
@@ -46,7 +46,7 @@ export default function SignInPage() {
               name="password"
               type="password"
               required
-              className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
             />
           </div>
 
@@ -57,7 +57,7 @@ export default function SignInPage() {
           <button
             type="submit"
             disabled={pending}
-            className="w-full rounded-lg bg-neutral-900 py-2 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-50"
+            className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
           >
             {pending ? "Signing in…" : "Sign in"}
           </button>

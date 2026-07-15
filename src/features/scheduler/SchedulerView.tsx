@@ -14,7 +14,7 @@ export function SchedulerView({ posts }: { posts: ScheduledPost[] }) {
         <button
           onClick={() => setView("calendar")}
           className={`rounded-md px-3 py-1.5 font-medium transition ${
-            view === "calendar" ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-50"
+            view === "calendar" ? "bg-brand-600 text-white" : "text-neutral-600 hover:bg-neutral-50"
           }`}
         >
           Calendar
@@ -22,7 +22,7 @@ export function SchedulerView({ posts }: { posts: ScheduledPost[] }) {
         <button
           onClick={() => setView("list")}
           className={`rounded-md px-3 py-1.5 font-medium transition ${
-            view === "list" ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-50"
+            view === "list" ? "bg-brand-600 text-white" : "text-neutral-600 hover:bg-neutral-50"
           }`}
         >
           List

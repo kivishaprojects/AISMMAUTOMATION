@@ -90,7 +90,7 @@ export function TopBar({
                     className={`block rounded-lg px-2 py-2 text-sm hover:bg-neutral-50 ${!n.read ? "bg-neutral-50" : ""}`}
                   >
                     <div className="flex items-center gap-1.5">
-                      {!n.read && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-900" />}
+                      {!n.read && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600" />}
                       <p className="font-medium text-neutral-900">{n.title}</p>
                     </div>
                     {n.body && <p className="mt-0.5 truncate text-xs text-neutral-500">{n.body}</p>}
@@ -106,7 +106,7 @@ export function TopBar({
       <div className="relative" ref={profileRef}>
         <button
           onClick={() => setProfileOpen((v) => !v)}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 text-sm font-medium text-white hover:opacity-90"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 text-sm font-medium text-white hover:opacity-90"
         >
           {initial}
         </button>

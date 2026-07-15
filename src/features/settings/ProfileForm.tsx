@@ -29,7 +29,7 @@ export function ProfileForm({
           name="fullName"
           defaultValue={fullName}
           required
-          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
         />
       </div>
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
@@ -39,7 +39,7 @@ export function ProfileForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
       >
         {pending ? "Saving…" : "Save changes"}
       </button>

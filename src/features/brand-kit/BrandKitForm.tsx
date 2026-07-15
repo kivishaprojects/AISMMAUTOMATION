@@ -33,7 +33,7 @@ export function BrandKitForm({ action, existing, onDone }: Props) {
           name="name"
           defaultValue={existing?.name ?? ""}
           required
-          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           placeholder="e.g. Main Brand, Diwali Campaign"
         />
       </div>
@@ -74,7 +74,7 @@ export function BrandKitForm({ action, existing, onDone }: Props) {
           <select
             name="headingFont"
             defaultValue={fonts.heading ?? FONT_OPTIONS[0]}
-            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           >
             {FONT_OPTIONS.map((f) => (
               <option key={f} value={f}>{f}</option>
@@ -88,7 +88,7 @@ export function BrandKitForm({ action, existing, onDone }: Props) {
           <select
             name="bodyFont"
             defaultValue={fonts.body ?? FONT_OPTIONS[0]}
-            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           >
             {FONT_OPTIONS.map((f) => (
               <option key={f} value={f}>{f}</option>
@@ -107,7 +107,7 @@ export function BrandKitForm({ action, existing, onDone }: Props) {
           rows={3}
           maxLength={500}
           placeholder="e.g. Friendly, confident, and a little playful. Avoid corporate jargon."
-          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
         />
         <p className="mt-1 text-xs text-neutral-400">
           Used to steer AI-generated captions, blogs, and ad copy.
@@ -119,7 +119,7 @@ export function BrandKitForm({ action, existing, onDone }: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-neutral-900 py-2 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-50"
+        className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
       >
         {pending ? "Saving…" : existing ? "Save changes" : "Create brand kit"}
       </button>

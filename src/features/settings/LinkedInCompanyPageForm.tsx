@@ -14,7 +14,7 @@ export function LinkedInCompanyPageForm({ accountId }: { accountId: string }) {
       <input
         name="pageId"
         placeholder="Company Page numeric ID"
-        className="flex-1 rounded-lg border border-neutral-300 px-2 py-1.5 text-xs focus:border-neutral-900 focus:outline-none"
+        className="flex-1 rounded-lg border border-neutral-300 px-2 py-1.5 text-xs focus:border-brand-600 focus:outline-none"
       />
       <button
         type="submit"

@@ -27,7 +27,7 @@ export function GenerateImageForm({
           required
           rows={3}
           placeholder="e.g. A festive Diwali promotional banner for a sweets shop, warm gold and maroon tones, diyas and rangoli in the background"
-          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
         />
       </div>
 
@@ -38,7 +38,7 @@ export function GenerateImageForm({
           </label>
           <select
             name="brandKitId"
-            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           >
             <option value="">None</option>
             {brandKits.map((kit) => (
@@ -57,7 +57,7 @@ export function GenerateImageForm({
           <select
             name="aspectRatio"
             defaultValue="square"
-            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           >
             <option value="square">Square (1:1) — feed post</option>
             <option value="portrait">Portrait — story/reel</option>
@@ -71,7 +71,7 @@ export function GenerateImageForm({
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-neutral-900 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-50"
+        className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
       >
         {pending ? "Generating… (this can take 20-30s)" : "Generate image"}
       </button>

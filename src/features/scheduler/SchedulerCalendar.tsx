@@ -106,7 +106,7 @@ export function SchedulerCalendar({ posts }: { posts: ScheduledPost[] }) {
               >
                 <span
                   className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
-                    isToday ? "bg-neutral-900 text-white" : "text-neutral-600"
+                    isToday ? "bg-brand-600 text-white" : "text-neutral-600"
                   }`}
                 >
                   {date.getDate()}

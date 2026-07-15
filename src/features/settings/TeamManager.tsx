@@ -35,7 +35,7 @@ export function TeamManager({
             name="email"
             required
             placeholder="teammate@company.com"
-            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           />
         </div>
         <div>
@@ -43,7 +43,7 @@ export function TeamManager({
           <select
             name="role"
             defaultValue="EDITOR"
-            className="mt-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+            className="mt-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           >
             {ROLES.map((r) => (
               <option key={r} value={r}>{r}</option>
@@ -53,7 +53,7 @@ export function TeamManager({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
         >
           {pending ? "Inviting…" : "Invite"}
         </button>
@@ -76,7 +76,7 @@ export function TeamManager({
               <select
                 defaultValue={m.role}
                 onChange={(e) => updateMemberRoleAction(m.membershipId, e.target.value)}
-                className="rounded-lg border border-neutral-300 px-2 py-1.5 text-xs focus:border-neutral-900 focus:outline-none"
+                className="rounded-lg border border-neutral-300 px-2 py-1.5 text-xs focus:border-brand-600 focus:outline-none"
               >
                 {ROLES.map((r) => (
                   <option key={r} value={r}>{r}</option>

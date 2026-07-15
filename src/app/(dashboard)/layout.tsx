@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserOrgs } from "@/features/org/queries";
+import { getRecentNotifications } from "@/features/notifications/queries";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 
@@ -16,7 +17,10 @@ export default async function DashboardLayout({
 
   if (!user) redirect("/sign-in");
 
-  const orgs = await getCurrentUserOrgs();
+  const [orgs, { items: notifications, unreadCount }] = await Promise.all([
+    getCurrentUserOrgs(),
+    getRecentNotifications(),
+  ]);
   const activeOrg = orgs[0];
 
   return (
@@ -26,6 +30,8 @@ export default async function DashboardLayout({
         <TopBar
           userEmail={user.email ?? ""}
           userName={(user.user_metadata as { full_name?: string })?.full_name}
+          notifications={notifications}
+          unreadCount={unreadCount}
         />
         <main className="flex-1 p-8">{children}</main>
       </div>

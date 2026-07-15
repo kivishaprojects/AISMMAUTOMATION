@@ -1,8 +1,10 @@
 import { getCurrentUserOrgs } from "@/features/org/queries";
+import { getDashboardStats } from "@/features/org/dashboard-stats";
 
 export default async function DashboardPage() {
   const orgs = await getCurrentUserOrgs();
   const org = orgs[0];
+  const stats = org ? await getDashboardStats(org.id) : null;
 
   return (
     <div>
@@ -17,8 +19,8 @@ export default async function DashboardPage() {
         {[
           { label: "Plan", value: org?.plan ?? "—" },
           { label: "Your role", value: org?.role ?? "—" },
-          { label: "Scheduled posts", value: "0" },
-          { label: "AI generations this month", value: "0" },
+          { label: "Scheduled posts", value: stats?.scheduledPosts ?? 0 },
+          { label: "AI generations this month", value: stats?.aiGenerationsThisMonth ?? 0 },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -37,8 +39,7 @@ export default async function DashboardPage() {
       <div className="mt-8 rounded-2xl border border-dashed border-neutral-300 bg-white p-8 text-center">
         <p className="text-sm text-neutral-500">
           This is the real dashboard shell, reading live data from your
-          Supabase project through RLS. Next modules (Creative Studio,
-          Scheduler, Inbox) will fill this in.
+          Supabase project through RLS.
         </p>
       </div>
     </div>

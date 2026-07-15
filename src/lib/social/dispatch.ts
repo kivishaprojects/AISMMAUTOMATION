@@ -12,7 +12,7 @@ export async function attemptPublishPost(postId: string): Promise<void> {
 
   const { data: post } = await admin
     .from("posts")
-    .select("caption, hashtags")
+    .select("caption, hashtags, created_by, organization_id")
     .eq("id", postId)
     .single();
   if (!post) return;
@@ -94,4 +94,18 @@ export async function attemptPublishPost(postId: string): Promise<void> {
 
   const finalStatus = anyPublished && !anyFailed ? "PUBLISHED" : anyFailed && !anyPublished ? "FAILED" : "PUBLISHED";
   await admin.from("posts").update({ status: finalStatus }).eq("id", postId);
+
+  await admin.from("notifications").insert({
+    organization_id: post.organization_id,
+    user_id: post.created_by,
+    type: finalStatus === "FAILED" ? "POST_FAILED" : "POST_PUBLISHED",
+    title:
+      finalStatus === "FAILED"
+        ? "A post failed to publish"
+        : anyFailed
+        ? "Post published to some pages, others failed"
+        : "Post published successfully",
+    body: post.caption ? post.caption.slice(0, 120) : null,
+    link: "/dashboard/scheduler",
+  });
 }

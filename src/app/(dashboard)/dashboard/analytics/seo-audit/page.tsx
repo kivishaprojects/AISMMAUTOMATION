@@ -1,5 +1,6 @@
 import { getCurrentUserOrgs } from "@/features/org/queries";
 import { getSeoAudits } from "@/features/seo/seo-audit-queries";
+import { getRepoConnections } from "@/features/seo/repo-queries";
 import { SeoAuditTool } from "@/features/seo/SeoAuditTool";
 
 // Crawling + broken-link checks + PageSpeed can take a while combined.
@@ -13,7 +14,10 @@ export default async function SeoAuditPage() {
     return <p className="text-sm text-neutral-500">You&apos;re not part of an organization yet.</p>;
   }
 
-  const audits = await getSeoAudits(org.id);
+  const [audits, repoConnections] = await Promise.all([
+    getSeoAudits(org.id),
+    getRepoConnections(org.id),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -23,7 +27,7 @@ export default async function SeoAuditPage() {
           On-page checks, Core Web Vitals, and AI-written fixes for any URL.
         </p>
       </div>
-      <SeoAuditTool organizationId={org.id} pastAudits={audits} />
+      <SeoAuditTool organizationId={org.id} pastAudits={audits} hasRepo={repoConnections.length > 0} />
     </div>
   );
 }

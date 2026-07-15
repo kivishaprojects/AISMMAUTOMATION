@@ -3,6 +3,8 @@ import * as cheerio from "cheerio";
 
 export type SeoCheck = { label: string; passed: boolean; detail?: string };
 
+export type MissingAltImage = { src: string; nearbyText: string };
+
 export type CrawlResult = {
   finalUrl: string;
   title: string | null;
@@ -11,6 +13,8 @@ export type CrawlResult = {
   h1Text: string[];
   imagesTotal: number;
   imagesMissingAlt: number;
+  imagesMissingAltSrcs: string[];
+  imagesMissingAltSample: MissingAltImage[];
   hasCanonical: boolean;
   isNoindex: boolean;
   hasViewportMeta: boolean;
@@ -18,6 +22,7 @@ export type CrawlResult = {
   internalLinks: string[];
   externalLinks: string[];
   wordCount: number;
+  bodyTextSample: string;
 };
 
 export async function crawlPage(url: string): Promise<CrawlResult> {
@@ -37,7 +42,30 @@ export async function crawlPage(url: string): Promise<CrawlResult> {
   const metaDescription = $('meta[name="description"]').attr("content")?.trim() || null;
   const h1Text = $("h1").map((_, el) => $(el).text().trim()).get().filter(Boolean);
   const images = $("img");
-  const imagesMissingAlt = images.filter((_, el) => !$(el).attr("alt")?.trim()).length;
+  const imagesMissingAltSrcs: string[] = [];
+  images.each((_, el) => {
+    if (!$(el).attr("alt")?.trim()) {
+      const src = $(el).attr("src");
+      if (src) {
+        try {
+          imagesMissingAltSrcs.push(new URL(src, finalUrl).toString());
+        } catch {
+          // unparseable src, skip
+        }
+      }
+    }
+  });
+  const imagesMissingAlt = imagesMissingAltSrcs.length;
+  const imagesMissingAltSample: MissingAltImage[] = [];
+  images.each((_, el) => {
+    if (imagesMissingAltSample.length >= 10) return;
+    const $el = $(el);
+    if ($el.attr("alt")?.trim()) return;
+    const src = $el.attr("src") || $el.attr("data-src");
+    if (!src) return;
+    const nearbyText = $el.closest("figure, div, section, article, p").text().replace(/\s+/g, " ").trim().slice(0, 200);
+    imagesMissingAltSample.push({ src: new URL(src, finalUrl).toString(), nearbyText });
+  });
   const hasCanonical = $('link[rel="canonical"]').length > 0;
   const robotsContent = $('meta[name="robots"]').attr("content")?.toLowerCase() ?? "";
   const isNoindex = robotsContent.includes("noindex");
@@ -82,6 +110,8 @@ export async function crawlPage(url: string): Promise<CrawlResult> {
     h1Text,
     imagesTotal: images.length,
     imagesMissingAlt,
+    imagesMissingAltSrcs,
+    imagesMissingAltSample,
     hasCanonical,
     isNoindex,
     hasViewportMeta,
@@ -89,6 +119,7 @@ export async function crawlPage(url: string): Promise<CrawlResult> {
     internalLinks: [...internalLinks].slice(0, 50),
     externalLinks: [...externalLinks].slice(0, 50),
     wordCount,
+    bodyTextSample: bodyText.slice(0, 500),
   };
 }
 
@@ -120,7 +151,7 @@ export function buildOnPageChecklist(crawl: CrawlResult, brokenLinks: { url: str
       passed: !!crawl.title && crawl.title.length >= 30 && crawl.title.length <= 60,
       detail: crawl.title ? `${crawl.title.length} chars` : undefined,
     },
-    { label: "Meta description present", passed: !!crawl.metaDescription },
+    { label: "Meta description present", passed: !!crawl.metaDescription, detail: crawl.metaDescription ?? undefined },
     {
       label: "Meta description length reasonable (120-160 chars)",
       passed: !!crawl.metaDescription && crawl.metaDescription.length >= 120 && crawl.metaDescription.length <= 160,

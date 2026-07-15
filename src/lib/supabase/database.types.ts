@@ -674,43 +674,140 @@ export type Database = {
           },
         ]
       }
+      seo_audit_fixes: {
+        Row: {
+          audit_id: string
+          created_at: string
+          current_value: string | null
+          fix_type: string
+          id: string
+          organization_id: string
+          snippet: string
+          status: string
+          suggested_value: string
+          target_ref: string | null
+        }
+        Insert: {
+          audit_id: string
+          created_at?: string
+          current_value?: string | null
+          fix_type: string
+          id?: string
+          organization_id: string
+          snippet: string
+          status?: string
+          suggested_value: string
+          target_ref?: string | null
+        }
+        Update: {
+          audit_id?: string
+          created_at?: string
+          current_value?: string | null
+          fix_type?: string
+          id?: string
+          organization_id?: string
+          snippet?: string
+          status?: string
+          suggested_value?: string
+          target_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_audit_fixes_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "seo_audits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seo_audits: {
         Row: {
+          alt_text_suggestions: Json | null
           checks: Json | null
           created_at: string
           created_by: string
+          fixes_status: Json | null
           id: string
           organization_id: string
           pagespeed: Json | null
           recommendations: string | null
           score: number | null
+          suggested_meta_description: string | null
+          suggested_title: string | null
           url: string
         }
         Insert: {
+          alt_text_suggestions?: Json | null
           checks?: Json | null
           created_at?: string
           created_by: string
+          fixes_status?: Json | null
           id?: string
           organization_id: string
           pagespeed?: Json | null
           recommendations?: string | null
           score?: number | null
+          suggested_meta_description?: string | null
+          suggested_title?: string | null
           url: string
         }
         Update: {
+          alt_text_suggestions?: Json | null
           checks?: Json | null
           created_at?: string
           created_by?: string
+          fixes_status?: Json | null
           id?: string
           organization_id?: string
           pagespeed?: Json | null
           recommendations?: string | null
           score?: number | null
+          suggested_meta_description?: string | null
+          suggested_title?: string | null
           url?: string
         }
         Relationships: [
           {
             foreignKeyName: "seo_audits_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      repo_connections: {
+        Row: {
+          access_token_encrypted: string
+          created_at: string
+          id: string
+          organization_id: string
+          provider: string
+          repo_name: string
+          repo_owner: string
+        }
+        Insert: {
+          access_token_encrypted: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          provider?: string
+          repo_name: string
+          repo_owner: string
+        }
+        Update: {
+          access_token_encrypted?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          provider?: string
+          repo_name?: string
+          repo_owner?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repo_connections_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"

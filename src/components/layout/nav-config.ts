@@ -18,6 +18,7 @@ import {
   Search,
   Code2,
   Radar,
+  GitBranch,
 } from "lucide-react";
 
 export type NavLeaf = { label: string; href: string; badge?: string; icon: LucideIcon };
@@ -60,6 +61,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "My API Keys", href: "/dashboard/settings/api-keys", icon: KeyRound },
       { label: "Social Media Accounts", href: "/dashboard/settings/social-accounts", icon: Share2 },
+      { label: "Website Repository", href: "/dashboard/settings/website-repo", icon: GitBranch },
       { label: "Brand Kit", href: "/dashboard/brand-kit", icon: Palette },
       { label: "Subscription", href: "/dashboard/settings/subscription", icon: CreditCard },
       { label: "Wallet", href: "/dashboard/settings/wallet", icon: Wallet },

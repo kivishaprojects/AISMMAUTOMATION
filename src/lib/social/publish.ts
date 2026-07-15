@@ -1,5 +1,6 @@
 import "server-only";
 import { GRAPH_BASE } from "./meta";
+import { LINKEDIN_VERSION } from "./linkedin";
 
 /** Publishes a photo post to a Facebook Page. Returns the new post ID. */
 export async function publishFacebookPhoto({
@@ -83,4 +84,84 @@ export async function publishInstagramPhoto({
   }
   const published = await publishRes.json();
   return published.id;
+}
+
+/**
+ * Publishes an image post to LinkedIn (personal profile or Company Page,
+ * depending on which URN is passed as authorUrn). LinkedIn's Posts API
+ * requires images to be uploaded to their own storage first \u2014 unlike
+ * Meta, it won't fetch an arbitrary image URL for you.
+ */
+export async function publishLinkedInPost({
+  authorUrn,
+  accessToken,
+  imageUrl,
+  caption,
+}: {
+  authorUrn: string;
+  accessToken: string;
+  imageUrl: string;
+  caption: string;
+}): Promise<string> {
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+    "LinkedIn-Version": LINKEDIN_VERSION,
+    "X-Restli-Protocol-Version": "2.0.0",
+  };
+
+  // Step 1: register an image upload slot.
+  const initRes = await fetch("https://api.linkedin.com/rest/images?action=initializeUpload", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ initializeUploadRequest: { owner: authorUrn } }),
+  });
+  if (!initRes.ok) {
+    throw new Error(`LinkedIn image upload init failed: ${await initRes.text()}`);
+  }
+  const initData = await initRes.json();
+  const uploadUrl: string = initData.value.uploadUrl;
+  const imageUrn: string = initData.value.image;
+
+  // Step 2: fetch our own hosted image and push its bytes to LinkedIn's
+  // pre-signed upload URL.
+  const imageRes = await fetch(imageUrl);
+  if (!imageRes.ok) {
+    throw new Error("Could not fetch generated image to upload to LinkedIn");
+  }
+  const imageBuffer = await imageRes.arrayBuffer();
+
+  const uploadRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: imageBuffer,
+  });
+  if (!uploadRes.ok) {
+    throw new Error(`LinkedIn image upload failed: ${await uploadRes.text()}`);
+  }
+
+  // Step 3: create the post referencing the uploaded image.
+  const postRes = await fetch("https://api.linkedin.com/rest/posts", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      author: authorUrn,
+      commentary: caption,
+      visibility: "PUBLIC",
+      distribution: {
+        feedDistribution: "MAIN_FEED",
+        targetEntities: [],
+        thirdPartyDistributionChannels: [],
+      },
+      content: { media: { id: imageUrn } },
+      lifecycleState: "PUBLISHED",
+      isReshareDisabledByAuthor: false,
+    }),
+  });
+
+  if (!postRes.ok) {
+    throw new Error(`LinkedIn publish failed: ${await postRes.text()}`);
+  }
+
+  return postRes.headers.get("x-restli-id") ?? postRes.headers.get("x-linkedin-id") ?? "";
 }

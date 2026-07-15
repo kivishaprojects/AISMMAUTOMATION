@@ -1,7 +1,8 @@
 import { getCurrentUserOrgs } from "@/features/org/queries";
 import { getActiveSocialAccounts } from "@/features/scheduler/social-queries";
-import { connectMetaAction } from "@/features/settings/social-accounts-actions";
+import { connectMetaAction, connectLinkedInAction } from "@/features/settings/social-accounts-actions";
 import { DisconnectButton } from "@/features/settings/DisconnectButton";
+import { LinkedInCompanyPageForm } from "@/features/settings/LinkedInCompanyPageForm";
 
 export default async function SocialAccountsPage({
   searchParams,
@@ -18,6 +19,7 @@ export default async function SocialAccountsPage({
 
   const accounts = await getActiveSocialAccounts(org.id);
   const metaAccounts = accounts.filter((a) => a.platform === "FACEBOOK" || a.platform === "INSTAGRAM");
+  const linkedInAccounts = accounts.filter((a) => a.platform === "LINKEDIN");
 
   return (
     <div className="max-w-xl space-y-6">
@@ -71,22 +73,52 @@ export default async function SocialAccountsPage({
         )}
       </div>
 
-      <div className="space-y-3">
-        {["X (Twitter)", "LinkedIn"].map((name) => (
-          <div
-            key={name}
-            className="flex items-center justify-between rounded-2xl border border-neutral-200 bg-white p-4"
-          >
-            <span className="text-sm font-medium text-neutral-900">{name}</span>
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-neutral-900">LinkedIn</p>
+            <p className="mt-0.5 text-xs text-neutral-500">
+              Connects your personal profile immediately. Posting as your Company Page
+              needs LinkedIn&apos;s Marketing API approval (2-4 weeks) \u2014 set the Page ID below once approved.
+            </p>
+          </div>
+          <form action={connectLinkedInAction.bind(null, org.id)}>
             <button
-              disabled
-              className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-400"
-              title="Requires platform app credentials"
+              type="submit"
+              className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
             >
               Connect
             </button>
+          </form>
+        </div>
+
+        {linkedInAccounts.length > 0 && (
+          <div className="mt-4 space-y-3 border-t border-neutral-100 pt-4">
+            {linkedInAccounts.map((acc) => (
+              <div key={acc.id} className="rounded-lg border border-neutral-200 px-3 py-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-neutral-700">
+                    {acc.external_id.includes("organization") ? "Company Page" : "Personal profile"} ·{" "}
+                    <span className="text-xs text-neutral-400">{acc.external_id}</span>
+                  </span>
+                  <DisconnectButton accountId={acc.id} />
+                </div>
+                <LinkedInCompanyPageForm accountId={acc.id} />
+              </div>
+            ))}
           </div>
-        ))}
+        )}
+      </div>
+
+      <div className="flex items-center justify-between rounded-2xl border border-neutral-200 bg-white p-4">
+        <span className="text-sm font-medium text-neutral-900">X (Twitter)</span>
+        <button
+          disabled
+          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-400"
+          title="Requires platform app credentials"
+        >
+          Connect
+        </button>
       </div>
     </div>
   );

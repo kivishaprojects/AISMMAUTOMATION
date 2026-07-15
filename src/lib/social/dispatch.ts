@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { publishFacebookPhoto, publishInstagramPhoto } from "./publish";
+import { publishFacebookPhoto, publishInstagramPhoto, publishLinkedInPost } from "./publish";
 
 /**
  * Attempts to publish every PUBLISHING target for a post, using the
@@ -70,6 +70,13 @@ export async function attemptPublishPost(postId: string): Promise<void> {
         platformPostId = await publishInstagramPhoto({
           igUserId: account.external_id,
           pageAccessToken: account.access_token_encrypted,
+          imageUrl,
+          caption: captionWithTags,
+        });
+      } else if (account.platform === "LINKEDIN") {
+        platformPostId = await publishLinkedInPost({
+          authorUrn: account.external_id,
+          accessToken: account.access_token_encrypted,
           imageUrl,
           caption: captionWithTags,
         });

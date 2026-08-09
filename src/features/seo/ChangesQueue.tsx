@@ -7,7 +7,18 @@ import {
   deleteSiteChangeAction,
   regenerateSiteChangeAction,
   deploySiteChangesAction,
+  verifySiteChangesAction,
+  rollbackSiteChangesAction,
 } from "./site-changes-actions";
+
+const TERMINAL_STATUSES = new Set(["DEPLOYED", "VERIFIED", "VERIFY_FAILED", "ROLLED_BACK"]);
+
+const STATUS_CHIP: Record<string, string> = {
+  DEPLOYED: "bg-blue-100 text-blue-700",
+  VERIFIED: "bg-emerald-100 text-emerald-700",
+  VERIFY_FAILED: "bg-red-100 text-red-700",
+  ROLLED_BACK: "bg-neutral-200 text-neutral-600",
+};
 import type { SiteChange } from "./site-changes-queries";
 
 function ChangeRow({
@@ -27,7 +38,7 @@ function ChangeRow({
   const [deleted, setDeleted] = useState(false);
 
   if (deleted) return null;
-  const isDeployed = change.status === "DEPLOYED";
+  const isDeployed = TERMINAL_STATUSES.has(change.status);
 
   return (
     <div className={`rounded-xl border p-4 ${isDeployed ? "border-emerald-200 bg-emerald-50/40" : "border-neutral-200 bg-white"}`}>
@@ -43,8 +54,15 @@ function ChangeRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-medium text-neutral-900">{change.label}</p>
-            <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-500">
-              {change.change_type}
+            <span className="flex shrink-0 items-center gap-1.5">
+              {isDeployed && (
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${STATUS_CHIP[change.status] ?? "bg-neutral-100 text-neutral-500"}`}>
+                  {change.status.replace("_", " ")}
+                </span>
+              )}
+              <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-500">
+                {change.change_type}
+              </span>
             </span>
           </div>
 
@@ -115,6 +133,8 @@ export function ChangesQueue({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [prUrl, setPrUrl] = useState<string | null>(null);
+  const [verifyResult, setVerifyResult] = useState<string | null>(null);
+  const [rollbackUrl, setRollbackUrl] = useState<string | null>(null);
 
   if (changes.length === 0) return null;
 
@@ -127,8 +147,9 @@ export function ChangesQueue({
     });
   }
 
-  const pending = changes.filter((c) => c.status !== "DEPLOYED");
-  const deployed = changes.filter((c) => c.status === "DEPLOYED");
+  const pending = changes.filter((c) => !TERMINAL_STATUSES.has(c.status));
+  const deployed = changes.filter((c) => TERMINAL_STATUSES.has(c.status));
+  const actionable = deployed.filter((c) => c.status !== "ROLLED_BACK");
 
   return (
     <div className="space-y-4">
@@ -178,7 +199,58 @@ export function ChangesQueue({
 
       {deployed.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Deployed</p>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Deployed</p>
+            {actionable.length > 0 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setVerifyResult(null);
+                    startTransition(async () => {
+                      try {
+                        const r = await verifySiteChangesAction(organizationId, actionable.map((c) => c.id));
+                        setVerifyResult(
+                          `${r.verified} verified, ${r.failed} not found on the live page` +
+                            (r.skipped > 0 ? `, ${r.skipped} skipped (no page URL)` : "") +
+                            ". Note: verification checks the live site — if the PR isn't merged and deployed yet, changes will show as not found."
+                        );
+                      } catch (err) {
+                        setVerifyResult(err instanceof Error ? err.message : "Verification failed");
+                      }
+                    });
+                  }}
+                  disabled={isPending}
+                  className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+                >
+                  {isPending ? "Checking live site…" : "Verify on live site"}
+                </button>
+                <button
+                  onClick={() => {
+                    if (!confirm("Open a rollback Pull Request restoring the previous values for all deployed changes here?")) return;
+                    setVerifyResult(null);
+                    startTransition(async () => {
+                      try {
+                        const url = await rollbackSiteChangesAction(organizationId, actionable.map((c) => c.id));
+                        setRollbackUrl(url);
+                      } catch (err) {
+                        setVerifyResult(err instanceof Error ? err.message : "Rollback failed");
+                      }
+                    });
+                  }}
+                  disabled={isPending}
+                  className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                >
+                  Rollback via PR
+                </button>
+              </div>
+            )}
+          </div>
+          {verifyResult && <p className="mb-2 text-xs text-neutral-600">{verifyResult}</p>}
+          {rollbackUrl && (
+            <p className="mb-2 text-xs text-emerald-700">
+              Rollback PR opened: <a href={rollbackUrl} target="_blank" rel="noreferrer" className="underline">{rollbackUrl}</a>
+            </p>
+          )}
           <div className="space-y-2">
             {deployed.map((c) => (
               <ChangeRow key={c.id} organizationId={organizationId} change={c} selected={false} onToggle={toggle} />

@@ -8,6 +8,7 @@ import { resolveOpenAiKey, debitWalletCredits, refundWalletCredits, CREDIT_COSTS
 const addPromptSchema = z.object({
   prompt: z.string().min(5, "Enter the prompt to track"),
   brandName: z.string().min(1, "Enter the brand/client name to look for"),
+  competitors: z.string().optional(),
 });
 
 export async function addTrackedPromptAction(
@@ -18,6 +19,7 @@ export async function addTrackedPromptAction(
   const parsed = addPromptSchema.safeParse({
     prompt: formData.get("prompt"),
     brandName: formData.get("brandName"),
+    competitors: formData.get("competitors") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -34,6 +36,7 @@ export async function addTrackedPromptAction(
     created_by: user.id,
     prompt: parsed.data.prompt,
     brand_name: parsed.data.brandName,
+    competitors: parsed.data.competitors?.trim() || null,
   });
 
   if (error) return { error: error.message };
@@ -54,7 +57,7 @@ export async function runGeoCheckAction(organizationId: string, promptId: string
 
   const { data: tracked } = await supabase
     .from("geo_tracked_prompts")
-    .select("prompt, brand_name")
+    .select("prompt, brand_name, competitors")
     .eq("id", promptId)
     .single();
   if (!tracked) throw new Error("Tracked prompt not found");
@@ -87,7 +90,17 @@ export async function runGeoCheckAction(organizationId: string, promptId: string
     const json = await res.json();
     const responseText: string = json.choices?.[0]?.message?.content ?? "";
 
-    const mentioned = responseText.toLowerCase().includes(tracked.brand_name.toLowerCase());
+    const lowerResponse = responseText.toLowerCase();
+    const mentioned = lowerResponse.includes(tracked.brand_name.toLowerCase());
+
+    const competitorNames = (tracked.competitors ?? "")
+      .split(",")
+      .map((c: string) => c.trim())
+      .filter(Boolean);
+    const competitorMentions = competitorNames.map((name: string) => ({
+      name,
+      mentioned: lowerResponse.includes(name.toLowerCase()),
+    }));
 
     const { error: insertError } = await supabase.from("geo_check_results").insert({
       tracked_prompt_id: promptId,
@@ -95,6 +108,7 @@ export async function runGeoCheckAction(organizationId: string, promptId: string
       provider: "openai",
       mentioned,
       response_snippet: responseText.slice(0, 600),
+      competitor_mentions: competitorMentions.length > 0 ? competitorMentions : null,
     });
     if (insertError) throw new Error(insertError.message);
 

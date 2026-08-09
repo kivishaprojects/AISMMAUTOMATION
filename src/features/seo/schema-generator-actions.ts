@@ -67,8 +67,18 @@ export async function generateSchemaAction(
     let content: string = json.choices?.[0]?.message?.content ?? "";
     content = content.replace(/^```(json)?/i, "").replace(/```$/, "").trim();
 
-    // Validate it's actually parseable JSON before handing it back.
-    JSON.parse(content);
+    // Validate before handing it back: must parse, and must carry the
+    // schema.org context and a type or AI/search engines will ignore it.
+    const parsedLd = JSON.parse(content);
+    const items = Array.isArray(parsedLd) ? parsedLd : [parsedLd];
+    for (const item of items) {
+      if (!item["@context"] || !String(item["@context"]).includes("schema.org")) {
+        throw new Error("Generated schema is missing a schema.org @context — please regenerate.");
+      }
+      if (!item["@type"]) {
+        throw new Error("Generated schema is missing @type — please regenerate.");
+      }
+    }
 
     return { success: true, jsonLd: content };
   } catch (err) {

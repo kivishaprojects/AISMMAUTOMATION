@@ -127,6 +127,124 @@ export async function deploySiteChangesAction(organizationId: string, changeIds:
   return prUrl;
 }
 
+const normalize = (s: string) => s.replace(/\s+/g, " ").trim();
+
+/**
+ * Verification engine: re-fetches each deployed change's live page and checks
+ * whether the proposed value is actually present in the served HTML, closing
+ * the deploy loop with VERIFIED / VERIFY_FAILED statuses.
+ */
+export async function verifySiteChangesAction(organizationId: string, changeIds: string[]) {
+  const supabase = await createClient();
+  const { data: changes } = await supabase
+    .from("site_changes")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .in("id", changeIds)
+    .in("status", ["DEPLOYED", "VERIFY_FAILED", "VERIFIED"]);
+  if (!changes || changes.length === 0) return { verified: 0, failed: 0, skipped: 0 };
+
+  const htmlCache = new Map<string, string | null>();
+  let verified = 0;
+  let failed = 0;
+  let skipped = 0;
+
+  for (const change of changes) {
+    if (!change.page_url) {
+      skipped++;
+      continue;
+    }
+    if (!htmlCache.has(change.page_url)) {
+      try {
+        const res = await fetch(change.page_url, {
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; AIDigiMarket-Verify/1.0)" },
+          cache: "no-store",
+        });
+        htmlCache.set(change.page_url, res.ok ? await res.text() : null);
+      } catch {
+        htmlCache.set(change.page_url, null);
+      }
+    }
+    const html = htmlCache.get(change.page_url);
+    const found = !!html && normalize(html).includes(normalize(change.proposed_value));
+    await supabase
+      .from("site_changes")
+      .update({ status: found ? "VERIFIED" : "VERIFY_FAILED" })
+      .eq("id", change.id);
+    if (found) verified++;
+    else failed++;
+  }
+
+  revalidatePath("/dashboard/seo");
+  return { verified, failed, skipped };
+}
+
+/**
+ * Rollback: opens a revert Pull Request that swaps each change back to its
+ * recorded pre-change value (or removes inserted blocks). The stored
+ * current_value is the undo source, so only changes deployed through this
+ * framework can be rolled back.
+ */
+export async function rollbackSiteChangesAction(organizationId: string, changeIds: string[]) {
+  const supabase = await createClient();
+
+  const { data: repoConn } = await supabase
+    .from("repo_connections")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .eq("provider", "github")
+    .limit(1)
+    .single();
+  if (!repoConn) throw new Error("No GitHub repo connected. Add one under Settings → Website Repository.");
+
+  const { data: changes } = await supabase
+    .from("site_changes")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .in("id", changeIds)
+    .in("status", ["DEPLOYED", "VERIFIED", "VERIFY_FAILED"]);
+  if (!changes || changes.length === 0) throw new Error("No deployed changes selected");
+
+  const edits: FileEdit[] = [];
+  const creates: FileCreate[] = [];
+  const rollbackIds: string[] = [];
+
+  for (const change of changes) {
+    if (!change.file_path) continue;
+    if (FILE_CREATE_TYPES.has(change.change_type)) {
+      if (!change.current_value) continue; // file didn't exist before; nothing to restore
+      creates.push({ path: change.file_path, content: change.current_value });
+    } else if (change.current_value) {
+      edits.push({ path: change.file_path, find: change.proposed_value, replace: change.current_value });
+    } else {
+      edits.push({ path: change.file_path, find: `${change.proposed_value}\n</head>`, replace: "</head>" });
+    }
+    rollbackIds.push(change.id);
+  }
+  if (rollbackIds.length === 0) {
+    throw new Error("None of the selected changes can be rolled back automatically (no recorded previous value).");
+  }
+
+  const prUrl = await openFixPullRequest({
+    owner: repoConn.repo_owner,
+    repo: repoConn.repo_name,
+    token: repoConn.access_token_encrypted,
+    branchName: `ai-seo-rollback/${Date.now()}`,
+    title: `Rollback AI SEO changes (${rollbackIds.length})`,
+    body: `Rollback requested from AIDigiMarket — restores each change to its recorded pre-change value:\n\n${changes
+      .filter((c) => rollbackIds.includes(c.id))
+      .map((c) => `- ${c.label}`)
+      .join("\n")}`,
+    edits,
+    creates,
+  });
+
+  await supabase.from("site_changes").update({ status: "ROLLED_BACK", pr_url: prUrl }).in("id", rollbackIds);
+
+  revalidatePath("/dashboard/seo");
+  return prUrl;
+}
+
 export async function getChangesForBatchAction(organizationId: string, batchId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

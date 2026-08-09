@@ -4,10 +4,14 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { resolveOpenAiKey, debitWalletCredits, refundWalletCredits, CREDIT_COSTS } from "@/lib/ai/usage";
 
-const schema = z.object({
-  topic: z.string().optional(),
-  keywords: z.string().min(5, "Paste at least a few keywords, one per line"),
-});
+const schema = z
+  .object({
+    topic: z.string().optional(),
+    keywords: z.string().optional(),
+  })
+  .refine((v) => (v.keywords ?? "").trim().length >= 5 || (v.topic ?? "").trim().length >= 3, {
+    message: "Paste keywords (one per line), or enter a topic to discover keywords from",
+  });
 
 export type KeywordCluster = {
   topic: string;
@@ -48,10 +52,11 @@ export async function analyzeKeywordsAction(
   const apiKey = apiKeyOverride || process.env.OPENAI_API_KEY;
   if (!apiKey) return { error: "No OpenAI key available. Add one under Settings \u2192 My API Keys." };
 
-  const keywordList = parsed.data.keywords
+  const keywordList = (parsed.data.keywords ?? "")
     .split("\n")
     .map((k) => k.trim())
     .filter(Boolean);
+  const discoveryMode = keywordList.length === 0;
 
   try {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -62,18 +67,28 @@ export async function analyzeKeywordsAction(
         messages: [
           {
             role: "system",
-            content:
-              "You are an SEO strategist. Given a list of keywords, group them into topic " +
-              "clusters, and classify the dominant search intent of each cluster as exactly one " +
-              "of: informational, commercial, transactional, navigational. Every input keyword " +
-              "must appear in exactly one cluster. Also identify 3-6 topic gaps \u2014 related " +
-              "subtopics or questions that are NOT covered by this keyword list but likely should " +
-              "be, given the topic. Respond with ONLY valid JSON, no markdown fences, in this shape:\n" +
-              '{"clusters": [{"topic": "...", "intent": "informational", "keywords": ["...","..."]}], "gaps": "1. ...\\n2. ..."}',
+            content: discoveryMode
+              ? "You are an SEO strategist doing keyword discovery. Given a seed topic/niche, generate " +
+                "30-45 realistic search keywords people actually type, spanning: informational, commercial, " +
+                "transactional, question-form, long-tail, and comparison queries. Do NOT invent search " +
+                "volumes or difficulty numbers. Group the generated keywords into topic clusters and " +
+                "classify each cluster's dominant intent as exactly one of: informational, commercial, " +
+                "transactional, navigational. Also list 3-6 further subtopic gaps worth exploring. " +
+                "Respond with ONLY valid JSON, no markdown fences, in this shape:\n" +
+                '{"clusters": [{"topic": "...", "intent": "informational", "keywords": ["...","..."]}], "gaps": "1. ...\\n2. ..."}'
+              : "You are an SEO strategist. Given a list of keywords, group them into topic " +
+                "clusters, and classify the dominant search intent of each cluster as exactly one " +
+                "of: informational, commercial, transactional, navigational. Every input keyword " +
+                "must appear in exactly one cluster. Also identify 3-6 topic gaps \u2014 related " +
+                "subtopics or questions that are NOT covered by this keyword list but likely should " +
+                "be, given the topic. Respond with ONLY valid JSON, no markdown fences, in this shape:\n" +
+                '{"clusters": [{"topic": "...", "intent": "informational", "keywords": ["...","..."]}], "gaps": "1. ...\\n2. ..."}',
           },
           {
             role: "user",
-            content: `Topic/niche: ${parsed.data.topic || "(not specified, infer from the keywords)"}\n\nKeywords:\n${keywordList.join("\n")}`,
+            content: discoveryMode
+              ? `Seed topic/niche to discover keywords for: ${parsed.data.topic}`
+              : `Topic/niche: ${parsed.data.topic || "(not specified, infer from the keywords)"}\n\nKeywords:\n${keywordList.join("\n")}`,
           },
         ],
         temperature: 0.4,
@@ -92,7 +107,9 @@ export async function analyzeKeywordsAction(
         organization_id: organizationId,
         created_by: user.id,
         topic: parsed.data.topic || null,
-        keywords_input: parsed.data.keywords,
+        keywords_input: discoveryMode
+          ? parsedResult.clusters.flatMap((c) => c.keywords).join("\n")
+          : (parsed.data.keywords ?? ""),
         clusters: parsedResult.clusters,
         gaps: parsedResult.gaps,
       })

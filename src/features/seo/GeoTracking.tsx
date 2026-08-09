@@ -85,6 +85,14 @@ function PromptCard({
                     <p className="text-neutral-400">
                       {new Date(h.checked_at).toLocaleString()} · {h.provider}
                     </p>
+                    {Array.isArray(h.competitor_mentions) && h.competitor_mentions.length > 0 && (
+                      <p className="mt-0.5 text-neutral-500">
+                        Competitors:{" "}
+                        {(h.competitor_mentions as { name: string; mentioned: boolean }[])
+                          .map((c) => `${c.name} ${c.mentioned ? "✓ mentioned" : "— not mentioned"}`)
+                          .join(" · ")}
+                      </p>
+                    )}
                     {h.response_snippet && (
                       <p className="mt-0.5 line-clamp-2 text-neutral-600">{h.response_snippet}</p>
                     )}
@@ -136,6 +144,17 @@ export function GeoTracking({
             placeholder="e.g. Jupiter Technologies"
             className="mt-1 w-full max-w-xs rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-neutral-700">Competitors to compare (optional, comma-separated)</label>
+          <input
+            name="competitors"
+            placeholder="e.g. Acme Digital, WebGrowth Co"
+            className="mt-1 w-full max-w-md rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
+          />
+          <p className="mt-1 text-xs text-neutral-400">
+            Each check will also report whether these competitors are mentioned, so you can see the mention gap.
+          </p>
         </div>
         {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
         <button

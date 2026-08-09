@@ -258,6 +258,7 @@ export type Database = {
       geo_check_results: {
         Row: {
           checked_at: string
+          competitor_mentions: Json | null
           id: string
           mentioned: boolean
           organization_id: string
@@ -267,6 +268,7 @@ export type Database = {
         }
         Insert: {
           checked_at?: string
+          competitor_mentions?: Json | null
           id?: string
           mentioned: boolean
           organization_id: string
@@ -276,6 +278,7 @@ export type Database = {
         }
         Update: {
           checked_at?: string
+          competitor_mentions?: Json | null
           id?: string
           mentioned?: boolean
           organization_id?: string
@@ -297,6 +300,7 @@ export type Database = {
         Row: {
           active: boolean
           brand_name: string
+          competitors: string | null
           created_at: string
           created_by: string
           id: string
@@ -306,6 +310,7 @@ export type Database = {
         Insert: {
           active?: boolean
           brand_name: string
+          competitors?: string | null
           created_at?: string
           created_by: string
           id?: string
@@ -315,6 +320,7 @@ export type Database = {
         Update: {
           active?: boolean
           brand_name?: string
+          competitors?: string | null
           created_at?: string
           created_by?: string
           id?: string

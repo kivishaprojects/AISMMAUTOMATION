@@ -79,7 +79,7 @@ export function KeywordIntelligence({
 
       <form action={formAction} className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-6">
         <div>
-          <label className="block text-sm font-medium text-neutral-700">Topic/niche (optional, helps accuracy)</label>
+          <label className="block text-sm font-medium text-neutral-700">Topic/niche</label>
           <input
             name="topic"
             placeholder="e.g. home bakery in Ahmedabad"
@@ -88,9 +88,12 @@ export function KeywordIntelligence({
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-700">Keywords (one per line)</label>
+          <p className="text-xs text-neutral-400">
+            Leave empty to let AI discover keyword ideas from the topic above — informational,
+            commercial, question, long-tail, and comparison queries.
+          </p>
           <textarea
             name="keywords"
-            required
             rows={8}
             placeholder={"eggless cake ahmedabad\nbest home bakery near me\ncustom birthday cake order\nhow to order cake online\nchocolate truffle cake price"}
             className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"

@@ -161,6 +161,19 @@ async function generateElementRewrite(
     ];
   }
   if (!ai.value) return [];
+  if (element === "SCHEMA") {
+    // Validate the JSON-LD inside the script tag before queueing it.
+    const inner = ai.value.replace(/^[\s\S]*?<script[^>]*>/i, "").replace(/<\/script>[\s\S]*$/i, "").trim();
+    try {
+      const parsedLd = JSON.parse(inner);
+      const items = Array.isArray(parsedLd) ? parsedLd : [parsedLd];
+      for (const item of items) {
+        if (!item["@context"] || !item["@type"]) throw new Error("missing @context/@type");
+      }
+    } catch {
+      throw new Error(`Generated schema for ${url} failed validation — try Execute again.`);
+    }
+  }
   const currentByElement: Record<string, string | null> = {
     TITLE: crawl.title,
     META: crawl.metaDescription,

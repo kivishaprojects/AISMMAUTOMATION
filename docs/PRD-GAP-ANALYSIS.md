@@ -1,6 +1,6 @@
 # AIDigiMarket — PRD Gap Analysis
 
-**PRD:** AI-Powered SEO & GEO Automation Platform v1.0 · **Compared against product as of 2026-08-09**
+**PRD:** AI-Powered SEO & GEO Automation Platform v1.0 · **Compared against product as of 2026-08-09** (updated after partial-tools build-out)
 
 Legend: ✅ Built · 🟨 Partial · ❌ Missing
 
@@ -10,14 +10,14 @@ Legend: ✅ Built · 🟨 Partial · ❌ Missing
 |---|---|---|
 | §4 O1 Website SEO audit | 🟨 | Technical SEO Auditor (single-page crawler, on-page checks, broken links, PageSpeed CWV); **AI Scan** now adds multi-page site-level scanning with robots/sitemap/duplicate detection |
 | §4 O2 AI recommendations (problem/why/impact/priority/auto-fix flag) | ✅ | AI Scan suggestions carry problem, why-it-matters, recommendation, expected outcome, affected URLs, impact, difficulty, executability |
-| §4 O3 Automated execution (Preview → Approval → Execution) | 🟨 | site_changes framework: generate → edit/regenerate → approve → deploy as GitHub PR. Missing: post-deploy verification + rollback (§11.7, §33) |
+| §4 O3 Automated execution (Preview → Approval → Execution → Verify → Rollback) | ✅ | site_changes framework: generate → edit/regenerate → approve → deploy as PR → **Verify on live site** (VERIFIED/VERIFY_FAILED) → **Rollback via revert PR** restoring recorded pre-change values |
 | §7 AI Website Screening | ✅ | AI Scan (URL + business context input, technical/content/on-page/GEO analysis) |
 | §8 Website Health Score with breakdown | ✅ | AI Scan scores: overall, technical, on-page, content, structured data, GEO readiness |
-| §6 AI Search Visibility | 🟨 | Rank & AI Visibility (custom prompts vs OpenAI, mention rate + history). Missing: multi-engine checks, entity/citation scoring, competitor mention gap |
+| §6 AI Search Visibility | 🟨 | Rank & AI Visibility: custom prompts vs OpenAI, mention rate + history, **competitor mention gap per check**. Missing: multi-engine checks (needs Perplexity/Gemini keys), entity/citation scoring |
 | §15 Developer/Git integration (PRs) | ✅ | GitHub repo connection; approved fixes open a PR |
-| §18 Keyword research | 🟨 | Keyword Intelligence: clustering, intent classification, gap detection from user-provided lists. Missing: volume/difficulty data (needs paid API), discovery from seeds |
-| §24 Schema automation | 🟨 | Schema Generator (JSON-LD) + AI Scan SCHEMA execution. Missing: validation step, deploy-verify loop |
-| §25 Change management log | 🟨 | site_changes batches with status + PR links. Missing: before/after diffing on the live site, undo |
+| §18 Keyword research | 🟨 | Keyword Intelligence: clustering, intent classification, gap detection, **seed-topic discovery mode** (AI generates 30-45 keyword ideas across intents; no fabricated volumes). Missing: real volume/difficulty data (needs paid API) |
+| §24 Schema automation | ✅ | Schema Generator + AI Scan SCHEMA execution, both with **JSON-LD validation** (@context/@type + parse) before queueing; deploy-verify loop via change verification |
+| §25 Change management log | ✅ | site_changes batches with full status lifecycle (DRAFT → DEPLOYED → VERIFIED/VERIFY_FAILED → ROLLED_BACK), PR links, stored before/after values, one-click rollback PR |
 | §36 Multi-tenant orgs | 🟨 | Organizations, roles, team management. Missing: agency multi-client dashboard, white-label (org table has `is_white_label` flag, unused) |
 | §48 Business model | ✅ | Stripe tiers (Starter/Growth/Enterprise/Agency) + credit wallet + BYO API key |
 
@@ -29,7 +29,6 @@ Legend: ✅ Built · 🟨 Partial · ❌ Missing
 3. **SEO Command Center** (§27–28) — aggregate dashboard over data already collected. Stub exists.
 4. **Internal Linking Engine** (§9, §11.4) — orphan/under-linked detection over crawled pages. Stub exists.
 5. **AI SEO Chat / natural-language commands** (§29–30) — conversational layer over existing tools.
-6. **Verification + rollback** (§11.7, §33–34) — re-crawl after PR merge, confirm changes landed, mark verified/failed. This is the PRD's core differentiator ("Verify" in the loop) and the North Star metric (§47).
 
 **Needs external data/APIs:**
 7. **SERP tracking** (§19) — needs a SERP API (DataForSEO/SerpAPI) or GSC integration.

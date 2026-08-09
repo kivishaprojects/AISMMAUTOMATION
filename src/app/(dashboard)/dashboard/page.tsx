@@ -1,4 +1,4 @@
-import { CreditCard, UserCircle, CalendarClock, Sparkles } from "lucide-react";
+import { CreditCard, UserCircle, Gauge, GitPullRequest } from "lucide-react";
 import { getCurrentUserOrgs } from "@/features/org/queries";
 import { getDashboardStats, getRecentActivity } from "@/features/org/dashboard-stats";
 import { ActivityChart } from "@/features/org/ActivityChart";
@@ -24,15 +24,15 @@ export default async function DashboardPage() {
       tint: "bg-violet-50 text-violet-600",
     },
     {
-      label: "Scheduled posts",
-      value: stats?.scheduledPosts ?? 0,
-      icon: CalendarClock,
+      label: "SEO audits run",
+      value: stats?.seoAudits ?? 0,
+      icon: Gauge,
       tint: "bg-amber-50 text-amber-600",
     },
     {
-      label: "AI generations this month",
-      value: stats?.aiGenerationsThisMonth ?? 0,
-      icon: Sparkles,
+      label: "Site changes proposed",
+      value: stats?.siteChanges ?? 0,
+      icon: GitPullRequest,
       tint: "bg-emerald-50 text-emerald-600",
     },
   ];

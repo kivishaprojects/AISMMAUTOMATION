@@ -1,5 +1,5 @@
 import { getCurrentUserOrgs } from "@/features/org/queries";
-import { getActiveSocialAccounts } from "@/features/scheduler/social-queries";
+import { getActiveSocialAccounts } from "@/features/settings/social-queries";
 import { getPageReports } from "@/features/page-analyzer/queries";
 import { PageAnalyzer } from "@/features/page-analyzer/PageAnalyzer";
 

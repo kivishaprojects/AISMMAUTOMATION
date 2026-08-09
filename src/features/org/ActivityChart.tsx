@@ -4,16 +4,16 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import type { DayActivity } from "@/features/org/dashboard-stats";
 
 export function ActivityChart({ data }: { data: DayActivity[] }) {
-  const isEmpty = data.every((d) => d.generations === 0 && d.posts === 0);
+  const isEmpty = data.every((d) => d.audits === 0 && d.changes === 0);
 
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-5">
       <p className="text-sm font-semibold text-neutral-900">Activity, last 7 days</p>
-      <p className="mt-0.5 text-xs text-neutral-500">AI generations and posts published or scheduled</p>
+      <p className="mt-0.5 text-xs text-neutral-500">SEO audits run and site changes proposed</p>
 
       {isEmpty ? (
         <div className="flex h-52 items-center justify-center">
-          <p className="text-sm text-neutral-400">Nothing yet this week — generate something in Creative Studio.</p>
+          <p className="text-sm text-neutral-400">Nothing yet this week — run an audit in the SEO tools.</p>
         </div>
       ) : (
         <div className="mt-4 h-52">
@@ -36,8 +36,8 @@ export function ActivityChart({ data }: { data: DayActivity[] }) {
                 contentStyle={{ borderRadius: 8, border: "1px solid #e5e5e5", fontSize: 12 }}
                 labelStyle={{ fontWeight: 600 }}
               />
-              <Area type="monotone" dataKey="generations" name="Generations" stroke="#4f46e5" strokeWidth={2} fill="url(#genFill)" />
-              <Area type="monotone" dataKey="posts" name="Posts" stroke="#10b981" strokeWidth={2} fill="url(#postFill)" />
+              <Area type="monotone" dataKey="audits" name="Audits" stroke="#4f46e5" strokeWidth={2} fill="url(#genFill)" />
+              <Area type="monotone" dataKey="changes" name="Site changes" stroke="#10b981" strokeWidth={2} fill="url(#postFill)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

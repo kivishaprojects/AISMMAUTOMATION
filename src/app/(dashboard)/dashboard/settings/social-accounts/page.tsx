@@ -1,5 +1,5 @@
 import { getCurrentUserOrgs } from "@/features/org/queries";
-import { getActiveSocialAccounts } from "@/features/scheduler/social-queries";
+import { getActiveSocialAccounts } from "@/features/settings/social-queries";
 import { connectMetaAction, connectLinkedInAction } from "@/features/settings/social-accounts-actions";
 import { DisconnectButton } from "@/features/settings/DisconnectButton";
 import { LinkedInCompanyPageForm } from "@/features/settings/LinkedInCompanyPageForm";

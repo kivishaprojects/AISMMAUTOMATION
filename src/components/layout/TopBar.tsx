@@ -78,7 +78,7 @@ export function TopBar({
             </div>
             {notifications.length === 0 ? (
               <p className="px-2 py-3 text-sm text-neutral-500">
-                No notifications yet. Post results and content-planning reminders will show up here.
+                No notifications yet. Updates from your tools will show up here.
               </p>
             ) : (
               <div className="max-h-80 space-y-0.5 overflow-y-auto">

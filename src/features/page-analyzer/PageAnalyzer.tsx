@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { generatePageReportAction } from "./actions";
 import type { PageReportRow } from "./queries";
-import type { SocialAccount } from "@/features/scheduler/social-queries";
+import type { SocialAccount } from "@/features/settings/social-queries";
 
 function ScoreRing({ score }: { score: number }) {
   const color = score >= 70 ? "#10b981" : score >= 40 ? "#f59e0b" : "#ef4444";

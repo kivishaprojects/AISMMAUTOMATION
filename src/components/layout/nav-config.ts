@@ -1,10 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
-  Image as ImageIcon,
-  Video,
-  CalendarClock,
-  NotebookPen,
   KeyRound,
   Share2,
   Palette,
@@ -36,22 +32,6 @@ export const NAV_TOP: NavLeaf[] = [
 ];
 
 export const NAV_GROUPS: NavGroup[] = [
-  {
-    label: "Creative Studio",
-    icon: ImageIcon,
-    items: [
-      { label: "Create Images", href: "/dashboard/studio", icon: ImageIcon },
-      { label: "Create Videos", href: "/dashboard/studio/videos", icon: Video },
-    ],
-  },
-  {
-    label: "Content Calendar",
-    icon: CalendarClock,
-    items: [
-      { label: "Scheduler", href: "/dashboard/scheduler", icon: CalendarClock },
-      { label: "Content Planning", href: "/dashboard/content-planning", icon: NotebookPen },
-    ],
-  },
   {
     label: "SEO Tools",
     icon: Search,

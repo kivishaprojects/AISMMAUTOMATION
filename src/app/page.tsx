@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Sparkles, ImageIcon, CalendarClock, Wallet } from "lucide-react";
+import { Sparkles, Search, GitPullRequest, Wallet } from "lucide-react";
 
 const FEATURES = [
-  { icon: ImageIcon, label: "AI images & video", tint: "bg-indigo-50 text-indigo-600" },
-  { icon: CalendarClock, label: "Schedule everywhere", tint: "bg-amber-50 text-amber-600" },
+  { icon: Search, label: "AI-powered SEO tools", tint: "bg-indigo-50 text-indigo-600" },
+  { icon: GitPullRequest, label: "Fixes shipped as pull requests", tint: "bg-amber-50 text-amber-600" },
   { icon: Wallet, label: "Pay only for what you use", tint: "bg-emerald-50 text-emerald-600" },
 ];
 

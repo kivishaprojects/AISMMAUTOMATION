@@ -45,7 +45,7 @@ export function BrandKitManager({
       {brandKits.length === 0 && !creating && (
         <div className="rounded-2xl border border-dashed border-neutral-300 bg-white p-8 text-center">
           <p className="text-sm text-neutral-500">
-            No brand kits yet. Create one to give the AI Creative Studio your
+            No brand kits yet. Create one to give the AI tools your
             colors, fonts, and tone of voice.
           </p>
         </div>

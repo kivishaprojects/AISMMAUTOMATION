@@ -1,37 +1,31 @@
 import { createClient } from "@/lib/supabase/server";
 
 export type DashboardStats = {
-  scheduledPosts: number;
-  aiGenerationsThisMonth: number;
+  seoAudits: number;
+  siteChanges: number;
 };
 
 export async function getDashboardStats(organizationId: string): Promise<DashboardStats> {
   const supabase = await createClient();
 
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
-
-  const [{ count: scheduledPosts }, { count: aiGenerationsThisMonth }] = await Promise.all([
+  const [{ count: seoAudits }, { count: siteChanges }] = await Promise.all([
     supabase
-      .from("posts")
+      .from("seo_audits")
       .select("*", { count: "exact", head: true })
-      .eq("organization_id", organizationId)
-      .eq("status", "SCHEDULED"),
+      .eq("organization_id", organizationId),
     supabase
-      .from("ai_generation_jobs")
+      .from("site_changes")
       .select("*", { count: "exact", head: true })
-      .eq("organization_id", organizationId)
-      .gte("created_at", startOfMonth.toISOString()),
+      .eq("organization_id", organizationId),
   ]);
 
   return {
-    scheduledPosts: scheduledPosts ?? 0,
-    aiGenerationsThisMonth: aiGenerationsThisMonth ?? 0,
+    seoAudits: seoAudits ?? 0,
+    siteChanges: siteChanges ?? 0,
   };
 }
 
-export type DayActivity = { day: string; generations: number; posts: number };
+export type DayActivity = { day: string; audits: number; changes: number };
 
 export async function getRecentActivity(organizationId: string): Promise<DayActivity[]> {
   const supabase = await createClient();
@@ -40,14 +34,14 @@ export async function getRecentActivity(organizationId: string): Promise<DayActi
   start.setDate(start.getDate() - 6);
   start.setHours(0, 0, 0, 0);
 
-  const [{ data: jobs }, { data: posts }] = await Promise.all([
+  const [{ data: audits }, { data: changes }] = await Promise.all([
     supabase
-      .from("ai_generation_jobs")
+      .from("seo_audits")
       .select("created_at")
       .eq("organization_id", organizationId)
       .gte("created_at", start.toISOString()),
     supabase
-      .from("posts")
+      .from("site_changes")
       .select("created_at")
       .eq("organization_id", organizationId)
       .gte("created_at", start.toISOString()),
@@ -62,8 +56,8 @@ export async function getRecentActivity(organizationId: string): Promise<DayActi
 
     days.push({
       day: label,
-      generations: (jobs ?? []).filter((j) => j.created_at.slice(0, 10) === key).length,
-      posts: (posts ?? []).filter((p) => p.created_at.slice(0, 10) === key).length,
+      audits: (audits ?? []).filter((a) => a.created_at.slice(0, 10) === key).length,
+      changes: (changes ?? []).filter((c) => c.created_at.slice(0, 10) === key).length,
     });
   }
   return days;

@@ -8,7 +8,11 @@ import type { ScanSuggestion } from "@/lib/ai/ai-scan";
 // Site discovery + up to 8 page crawls + one large AI analysis call.
 export const maxDuration = 300;
 
-export default async function AiScanPage() {
+export default async function AiScanPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ scan?: string }>;
+}) {
   const orgs = await getCurrentUserOrgs();
   const org = orgs[0];
 
@@ -16,9 +20,10 @@ export default async function AiScanPage() {
     return <p className="text-sm text-neutral-500">You&apos;re not part of an organization yet.</p>;
   }
 
+  const { scan: selectedScanId } = await searchParams;
   const [repoConnections, scans] = await Promise.all([
     getRepoConnections(org.id),
-    getRecentAiScans(org.id, 5),
+    getRecentAiScans(org.id, 20),
   ]);
 
   const executedBatchIds = scans.flatMap((scan) =>
@@ -48,6 +53,7 @@ export default async function AiScanPage() {
         hasRepo={repoConnections.length > 0}
         initialScans={scans}
         executedBatches={executedBatches}
+        selectedScanId={selectedScanId ?? null}
       />
     </div>
   );

@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, Play, CheckCircle2, Wrench } from "lucide-react";
+import { Sparkles, Play, CheckCircle2, Wrench, History } from "lucide-react";
 import { runAiScanAction, executeSuggestionAction } from "./ai-scan-actions";
 import { ChangesQueue } from "./ChangesQueue";
 import type { SiteChange } from "./site-changes-queries";
@@ -207,27 +208,78 @@ function ScanResult({
   );
 }
 
+function ScanHistoryList({ scans, activeScanId }: { scans: AiScan[]; activeScanId: string | null }) {
+  if (scans.length === 0) return null;
+  return (
+    <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <History size={13} /> Recent scans
+      </p>
+      <div className="mt-2 divide-y divide-neutral-100">
+        {scans.map((s) => {
+          const scores = s.scores as unknown as ScanScores;
+          const suggestions = (s.suggestions as unknown as ScanSuggestion[]) ?? [];
+          const executedCount = suggestions.filter((x) => x.executed_batch_id).length;
+          const isActive = s.id === activeScanId;
+          const tone =
+            scores.overall >= 75 ? "text-emerald-600" : scores.overall >= 50 ? "text-amber-600" : "text-red-600";
+          return (
+            <Link
+              key={s.id}
+              href={`/dashboard/seo/ai-scan?scan=${s.id}`}
+              className={`flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 transition hover:bg-neutral-50 ${
+                isActive ? "bg-brand-50/60" : ""
+              }`}
+            >
+              <div className="min-w-0">
+                <p className={`truncate text-sm font-medium ${isActive ? "text-brand-700" : "text-neutral-900"}`}>
+                  {s.site_url.replace(/^https?:\/\//, "")}
+                </p>
+                <p className="text-xs text-neutral-500">
+                  {new Date(s.created_at).toLocaleString()} · {s.pages_crawled} pages ·{" "}
+                  {suggestions.length} suggestions
+                  {executedCount > 0 ? ` · ${executedCount} executed` : ""}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-3">
+                <span className={`text-sm font-bold ${tone}`}>{scores.overall}</span>
+                <span className="rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600">
+                  {isActive ? "Open" : executedCount > 0 ? "Resume" : "View"}
+                </span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function AiScanTool({
   organizationId,
   hasRepo,
   initialScans,
   executedBatches,
+  selectedScanId,
 }: {
   organizationId: string;
   hasRepo: boolean;
   initialScans: AiScan[];
   executedBatches: Record<string, SiteChange[]>;
+  selectedScanId: string | null;
 }) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(
     async (prev: unknown, formData: FormData) => {
       const result = await runAiScanAction(organizationId, prev, formData);
-      if (result && "success" in result && result.success) router.refresh();
+      if (result && "success" in result && result.success && "scanId" in result) {
+        router.push(`/dashboard/seo/ai-scan?scan=${result.scanId}`);
+        router.refresh();
+      }
       return result;
     },
     null
   );
-  const [selectedScanId, setSelectedScanId] = useState<string | null>(null);
 
   const activeScan =
     initialScans.find((s) => s.id === selectedScanId) ?? initialScans[0] ?? null;
@@ -262,23 +314,7 @@ export function AiScanTool({
         )}
       </form>
 
-      {initialScans.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {initialScans.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setSelectedScanId(s.id)}
-              className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                activeScan?.id === s.id
-                  ? "border-brand-600 bg-brand-50 text-brand-700"
-                  : "border-neutral-200 text-neutral-500 hover:bg-neutral-50"
-              }`}
-            >
-              {new URL(s.site_url).hostname} · {new Date(s.created_at).toLocaleDateString()}
-            </button>
-          ))}
-        </div>
-      )}
+      <ScanHistoryList scans={initialScans} activeScanId={activeScan?.id ?? null} />
 
       {activeScan ? (
         <ScanResult

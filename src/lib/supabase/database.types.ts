@@ -214,6 +214,47 @@ export type Database = {
           },
         ]
       }
+      content_docs: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          doc_type: string
+          id: string
+          input_context: string | null
+          organization_id: string
+          title: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          doc_type: string
+          id?: string
+          input_context?: string | null
+          organization_id: string
+          title: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          doc_type?: string
+          id?: string
+          input_context?: string | null
+          organization_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_docs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_notes: {
         Row: {
           created_at: string

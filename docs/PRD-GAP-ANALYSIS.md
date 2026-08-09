@@ -23,16 +23,17 @@ Legend: ✅ Built · 🟨 Partial · ❌ Missing
 
 ## Remaining facilities (not yet built) — priority order
 
-**Quick wins (buildable now, no new services):**
-1. **AI Content Studio** (§16–17) — briefs, article drafts, FAQ/meta generation, multilingual. Coming Soon stub exists.
-2. **LLM/GEO content optimizer** (§5) — restructure content for AI citation. Stub exists.
-3. **SEO Command Center** (§27–28) — aggregate dashboard over data already collected. Stub exists.
-4. **Internal Linking Engine** (§9, §11.4) — orphan/under-linked detection over crawled pages. Stub exists.
-5. **AI SEO Chat / natural-language commands** (§29–30) — conversational layer over existing tools.
+**Built 2026-08-09 (formerly quick wins):**
+1. ✅ **AI Content Studio** (§16–17) — briefs, article drafts, FAQ sets + schema, title/meta options, multilingual, optional page-grounding.
+2. ✅ **LLM/GEO content optimizer** (§5) — crawls a page, rewrites weak spots for AI answer engines (direct answers, entities, Q&A, citation phrasing).
+3. ✅ **SEO Command Center** (§27–28) — aggregate stats (health, GEO readiness, mention rate, approvals, deployed/verified fixes) + prioritized open-actions list from the latest scan.
+4. ✅ **Internal Linking Engine** (§9, §11.4) — crawls provided pages, maps existing cross-links, finds orphans, proposes links with anchor text.
+5. ✅ **AI SEO Assistant** (§29–30) — chat grounded in workspace data (scans, changes, tracked prompts).
+6. ✅ **Competitor Intelligence (content-comparison)** (§20) — head-to-head page crawl + gap analysis.
 
 **Needs external data/APIs:**
 7. **SERP tracking** (§19) — needs a SERP API (DataForSEO/SerpAPI) or GSC integration.
-8. **Competitor intelligence** (§20) — content-comparison version buildable now; backlink/keyword overlap needs Ahrefs/Semrush/DataForSEO.
+8. **Competitor intelligence — data version** (§20) — content-comparison version now built; backlink/keyword overlap still needs Ahrefs/Semrush/DataForSEO.
 9. **Backlink intelligence** (§21) — needs backlink data provider.
 10. **Google Search Console + GA4 integration** (§9 keyword opportunities "positions 4–20", high-impressions-low-CTR) — *note: DB migration 017 (google_connections, analytics_reports) already exists remotely with no code; finish or drop.*
 

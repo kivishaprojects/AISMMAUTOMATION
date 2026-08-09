@@ -61,6 +61,8 @@ export const CREDIT_COSTS = {
   GEO_CHECK: 2,
   SCHEMA_GEN: 2,
   KEYWORD_ANALYSIS: 5,
+  AI_SCAN: 15,
+  SUGGESTION_EXECUTE: 5,
 } as const;
 
 /**

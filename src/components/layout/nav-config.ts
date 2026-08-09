@@ -36,6 +36,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "SEO Tools",
     icon: Search,
     items: [
+      { label: "AI Scan", href: "/dashboard/seo/ai-scan", icon: Sparkle, badge: "New" },
       { label: "On-Page Checker", href: "/dashboard/seo/on-page-checker", icon: Search },
       { label: "Crawlability", href: "/dashboard/seo/crawlability", icon: Workflow },
       { label: "Keyword Intelligence", href: "/dashboard/seo/keyword-intelligence", icon: Layers },

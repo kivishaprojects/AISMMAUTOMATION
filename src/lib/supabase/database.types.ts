@@ -69,6 +69,59 @@ export type Database = {
           },
         ]
       }
+      ai_scans: {
+        Row: {
+          business_context: string | null
+          created_at: string
+          created_by: string
+          id: string
+          organization_id: string
+          pages_crawled: number
+          scores: Json
+          site_url: string
+          status: string
+          suggestions: Json
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_context?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          organization_id: string
+          pages_crawled?: number
+          scores?: Json
+          site_url: string
+          status?: string
+          suggestions?: Json
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_context?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          organization_id?: string
+          pages_crawled?: number
+          scores?: Json
+          site_url?: string
+          status?: string
+          suggestions?: Json
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_scans_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assets: {
         Row: {
           brand_kit_id: string | null

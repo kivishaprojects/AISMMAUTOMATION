@@ -4,11 +4,21 @@ import { useActionState, useState } from "react";
 import { generateSchemaAction } from "./schema-generator-actions";
 import { SCHEMA_TYPES } from "./schema-generator-constants";
 
-export function SchemaGenerator({ organizationId }: { organizationId: string }) {
+export type SchemaHistoryDoc = { id: string; title: string; content: string; created_at: string };
+
+export function SchemaGenerator({
+  organizationId,
+  history = [],
+}: {
+  organizationId: string;
+  history?: SchemaHistoryDoc[];
+}) {
   const [state, formAction, pending] = useActionState(generateSchemaAction.bind(null, organizationId), null);
   const [copied, setCopied] = useState(false);
+  const [viewing, setViewing] = useState<SchemaHistoryDoc | null>(null);
 
-  const jsonLd = state && "success" in state && state.success ? state.jsonLd : null;
+  const freshJsonLd = state && "success" in state && state.success ? state.jsonLd : null;
+  const jsonLd = viewing ? viewing.content : freshJsonLd;
 
   return (
     <div className="space-y-6">
@@ -64,6 +74,26 @@ export function SchemaGenerator({ organizationId }: { organizationId: string }) 
           <pre className="overflow-x-auto rounded-xl bg-neutral-900 p-4 text-xs text-neutral-100">
             <code>{`<script type="application/ld+json">\n${jsonLd}\n</script>`}</code>
           </pre>
+        </div>
+      )}
+
+      {history.length > 0 && (
+        <div>
+          <p className="mb-2 text-sm font-semibold text-neutral-900">Past schemas</p>
+          <div className="space-y-1.5">
+            {history.map((h) => (
+              <button
+                key={h.id}
+                onClick={() => setViewing(viewing?.id === h.id ? null : h)}
+                className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm ${
+                  viewing?.id === h.id ? "border-brand-300 bg-brand-50" : "border-neutral-200 bg-white hover:bg-neutral-50"
+                }`}
+              >
+                <span className="truncate text-neutral-700">{h.title}</span>
+                <span className="shrink-0 text-xs text-neutral-400">{new Date(h.created_at).toLocaleDateString()}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

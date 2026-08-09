@@ -14,15 +14,34 @@ const SUGGESTED = [
 ];
 
 export function SeoAssistant({ organizationId }: { organizationId: string }) {
+  const storageKey = `aidigimarket-seo-chat-${organizationId}`;
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // Restore the last conversation on this device so users resume where they left off.
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) setMessages(JSON.parse(saved));
+    } catch {
+      // corrupted storage — start fresh
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(messages.slice(-40)));
+      } catch {
+        // storage full — keep going without persistence
+      }
+    }
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isPending]);
+  }, [messages, isPending, storageKey]);
 
   function send(text: string) {
     const content = text.trim();
@@ -40,6 +59,23 @@ export function SeoAssistant({ organizationId }: { organizationId: string }) {
 
   return (
     <div className="flex h-[calc(100vh-14rem)] flex-col rounded-2xl border border-neutral-200 bg-white">
+      {messages.length > 0 && (
+        <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-2">
+          <p className="text-xs text-neutral-400">Conversation continues from where you left off</p>
+          <button
+            onClick={() => {
+              setMessages([]);
+              setError(null);
+              try {
+                localStorage.removeItem(storageKey);
+              } catch {}
+            }}
+            className="text-xs font-medium text-neutral-500 hover:text-neutral-700"
+          >
+            New chat
+          </button>
+        </div>
+      )}
       <div className="flex-1 space-y-4 overflow-y-auto p-5">
         {messages.length === 0 && (
           <div className="mx-auto max-w-md pt-10 text-center">

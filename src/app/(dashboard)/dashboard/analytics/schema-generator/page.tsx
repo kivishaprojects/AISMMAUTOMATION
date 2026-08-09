@@ -1,4 +1,5 @@
 import { getCurrentUserOrgs } from "@/features/org/queries";
+import { getContentDocs } from "@/features/seo/content-docs-queries";
 import { SchemaGenerator } from "@/features/seo/SchemaGenerator";
 
 export default async function SchemaGeneratorPage() {
@@ -9,6 +10,8 @@ export default async function SchemaGeneratorPage() {
     return <p className="text-sm text-neutral-500">You&apos;re not part of an organization yet.</p>;
   }
 
+  const history = await getContentDocs(org.id, ["SCHEMA_DOC"], 10);
+
   return (
     <div className="space-y-6">
       <div>
@@ -18,7 +21,7 @@ export default async function SchemaGeneratorPage() {
           and cite your content correctly.
         </p>
       </div>
-      <SchemaGenerator organizationId={org.id} />
+      <SchemaGenerator organizationId={org.id} history={history} />
     </div>
   );
 }

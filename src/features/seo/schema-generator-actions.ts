@@ -80,6 +80,20 @@ export async function generateSchemaAction(
       }
     }
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("content_docs").insert({
+        organization_id: organizationId,
+        created_by: user.id,
+        doc_type: "SCHEMA_DOC",
+        title: `${parsed.data.schemaType}: ${parsed.data.details.slice(0, 60)}`,
+        input_context: parsed.data.details.slice(0, 300),
+        content,
+      });
+    }
+
     return { success: true, jsonLd: content };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Schema generation failed";

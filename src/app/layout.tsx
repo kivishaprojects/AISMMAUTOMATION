@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI Marketing OS",
+  title: "AIDigiMarket",
   description: "The AI-powered marketing operating system for growing businesses.",
 };
 

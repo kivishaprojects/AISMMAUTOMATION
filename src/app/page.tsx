@@ -14,7 +14,7 @@ export default function Home() {
         <Sparkles size={22} strokeWidth={2.25} />
       </div>
       <h1 className="mt-5 text-4xl font-semibold tracking-tight text-neutral-900">
-        AI Marketing OS
+        AIDigiMarket
       </h1>
       <p className="mt-3 max-w-md text-neutral-500">
         The AI-powered marketing operating system for growing businesses.

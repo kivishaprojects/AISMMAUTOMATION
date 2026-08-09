@@ -32,7 +32,7 @@ export default async function WalletPage({
         <h1 className="text-2xl font-semibold text-neutral-900">Wallet</h1>
         <p className="mt-1 text-sm text-neutral-500">
           Prepaid credits for platform-managed AI generation. Images cost 5 credits,
-          videos cost 50 \u2014 only when you&apos;re using AI Marketing OS&apos;s shared key
+          videos cost 50 \u2014 only when you&apos;re using AIDigiMarket&apos;s shared key
           (Settings \u2192 My API Keys set to &quot;Platform-managed&quot;). Your own key never touches this balance.
         </p>
       </div>

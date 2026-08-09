@@ -43,7 +43,7 @@ export async function buyCreditsAction(organizationId: string, credits: number) 
         price_data: {
           currency: "usd",
           unit_amount: pack.priceUsd * 100,
-          product_data: { name: `${pack.label} \u2014 AI Marketing OS wallet top-up` },
+          product_data: { name: `${pack.label} \u2014 AIDigiMarket wallet top-up` },
         },
         quantity: 1,
       },

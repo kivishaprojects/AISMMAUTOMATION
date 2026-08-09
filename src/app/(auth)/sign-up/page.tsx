@@ -15,7 +15,7 @@ export default function SignUpPage() {
           Create your workspace
         </h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Start your AI Marketing OS account.
+          Start your AIDigiMarket account.
         </p>
 
         <div className="mt-6">

@@ -113,7 +113,7 @@ export async function deploySiteChangesAction(organizationId: string, changeIds:
     token: repoConn.access_token_encrypted,
     branchName,
     title: `AI SEO fixes (${changes.length} change${changes.length > 1 ? "s" : ""})`,
-    body: `Automated fixes proposed by AI Marketing OS:\n\n${summary}\n\nReview the diff before merging \u2014 generated automatically and applied via exact text match, not verified against your site's rendering.`,
+    body: `Automated fixes proposed by AIDigiMarket:\n\n${summary}\n\nReview the diff before merging \u2014 generated automatically and applied via exact text match, not verified against your site's rendering.`,
     edits,
     creates,
   });

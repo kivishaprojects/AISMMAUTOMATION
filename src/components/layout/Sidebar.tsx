@@ -35,7 +35,7 @@ export function Sidebar({
           <Sparkles size={16} strokeWidth={2.25} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-neutral-900">AI Marketing OS</p>
+          <p className="truncate text-sm font-semibold text-neutral-900">AIDigiMarket</p>
           {orgName && (
             <p className="truncate text-xs text-neutral-500">
               {orgName} · {orgRole}

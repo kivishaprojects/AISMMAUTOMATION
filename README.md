@@ -1,4 +1,4 @@
-# AI Marketing OS
+# AIDigiMarket
 
 AI-powered marketing operating system. Next.js (App Router) + Supabase (Postgres, Auth, Storage) + Vercel.
 

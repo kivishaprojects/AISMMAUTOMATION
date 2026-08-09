@@ -25,7 +25,7 @@ export function ApiKeyForm({
     <form action={formAction} className="rounded-2xl border border-neutral-200 bg-white p-6">
       <h2 className="text-sm font-semibold text-neutral-900">{label}</h2>
       <p className="mt-1 text-xs text-neutral-500">
-        Use AI Marketing OS&apos;s shared key (usage counts toward your plan),
+        Use AIDigiMarket&apos;s shared key (usage counts toward your plan),
         or bring your own key (billed directly by the provider).
       </p>
 

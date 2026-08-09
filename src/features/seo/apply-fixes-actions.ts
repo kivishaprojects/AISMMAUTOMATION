@@ -55,7 +55,7 @@ export async function applyFixesViaGithubAction({
     branchName,
     title: `SEO fixes for ${audit.url}`,
     body:
-      `Automated SEO fix proposed by AI Marketing OS for ${audit.url}.\n\n` +
+      `Automated SEO fix proposed by AIDigiMarket for ${audit.url}.\n\n` +
       (applyTitle && audit.suggested_title ? `- Title: "${currentTitle}" \u2192 "${audit.suggested_title}"\n` : "") +
       (applyMeta && audit.suggested_meta_description ? `- Meta description updated\n` : "") +
       `\nReview the diff before merging \u2014 this was generated automatically and applied to a specific text match, not verified against your site's rendering.`,
